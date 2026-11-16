@@ -1,0 +1,997 @@
+{
+  "source": "local game.gamedb; no process access or memory writes",
+  "models": [
+    {
+      "record": "Character/Models:Orc_Infantry_Tough",
+      "fields": [
+        {
+          "field": "AIScaleRange",
+          "hash": "0x234a89cb",
+          "kind": 7,
+          "values": [
+            [
+              0.8999999761581421,
+              1.100000023841858
+            ]
+          ]
+        },
+        {
+          "field": "LockPhysicsContextActionHeight",
+          "hash": "0x5903d8d0",
+          "kind": 2,
+          "values": [
+            300.0
+          ]
+        },
+        {
+          "field": "MountedScale",
+          "hash": "0xec17211a",
+          "kind": 2,
+          "values": [
+            1.100000023841858
+          ]
+        },
+        {
+          "field": "RiderScale",
+          "hash": "0xa7810708",
+          "kind": 10,
+          "values": [
+            "null"
+          ]
+        }
+      ]
+    },
+    {
+      "record": "Character/Models:ZTestVeryLargeOrcInfantry",
+      "fields": [
+        {
+          "field": "AIScaleRange",
+          "hash": "0x234a89cb",
+          "kind": 7,
+          "values": [
+            [
+              2.0,
+              2.0
+            ]
+          ]
+        },
+        {
+          "field": "LockPhysicsContextActionHeight",
+          "hash": "0x5903d8d0",
+          "kind": 2,
+          "values": [
+            300.0
+          ]
+        },
+        {
+          "field": "MountedScale",
+          "hash": "0xec17211a",
+          "kind": 2,
+          "values": [
+            1.100000023841858
+          ]
+        },
+        {
+          "field": "RiderScale",
+          "hash": "0xa7810708",
+          "kind": 10,
+          "values": [
+            "null"
+          ]
+        }
+      ]
+    },
+    {
+      "record": "Character/Models:SQ_Zog",
+      "fields": [
+        {
+          "field": "AIScaleRange",
+          "hash": "0x234a89cb",
+          "kind": 7,
+          "values": [
+            [
+              0.8999999761581421,
+              1.0
+            ]
+          ]
+        },
+        {
+          "field": "LockPhysicsContextActionHeight",
+          "hash": "0x5903d8d0",
+          "kind": 2,
+          "values": [
+            200.0
+          ]
+        },
+        {
+          "field": "MountedScale",
+          "hash": "0xec17211a",
+          "kind": 2,
+          "values": [
+            1.100000023841858
+          ]
+        },
+        {
+          "field": "RiderScale",
+          "hash": "0xa7810708",
+          "kind": 10,
+          "values": [
+            "null"
+          ]
+        }
+      ]
+    }
+  ],
+  "tribes": [
+    {
+      "record": "Faction/Tribes/Definitions:TribeDef_Dark",
+      "fields": [
+        {
+          "field": "StatTribeMembersKilled",
+          "hash": "0x2fddc794",
+          "kind": 3,
+          "values": [
+            220
+          ]
+        },
+        {
+          "field": "StatTribeMembersRecruited",
+          "hash": "0xc275c7c6",
+          "kind": 3,
+          "values": [
+            221
+          ]
+        }
+      ]
+    },
+    {
+      "record": "Faction/Tribes/Definitions:TribeDef_ShadowWar",
+      "fields": [
+        {
+          "field": "StatTribeMembersKilled",
+          "hash": "0x2fddc794",
+          "kind": 3,
+          "values": [
+            0
+          ]
+        },
+        {
+          "field": "StatTribeMembersRecruited",
+          "hash": "0xc275c7c6",
+          "kind": 3,
+          "values": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "record": "Faction/Tribes/Definitions:TribeDef_Undead",
+      "fields": [
+        {
+          "field": "StatTribeMembersKilled",
+          "hash": "0x2fddc794",
+          "kind": 3,
+          "values": [
+            0
+          ]
+        },
+        {
+          "field": "StatTribeMembersRecruited",
+          "hash": "0xc275c7c6",
+          "kind": 3,
+          "values": [
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "incoming": [
+    {
+      "record": "_StructuresWeather.SystemPatternTribeEntry:#2",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresWeather.SystemPatternTribeEntry:#10",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "_StructuresWeather.SystemPatternTribeEntry:#13",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresWeather.SystemPatternTribeEntry:#21",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "_StructuresWeather.SystemPatternTribeEntry:#22",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "_StructuresWeather.SystemPatternTribeEntry:#25",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresWeather.SystemPatternTribeEntry:#36",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresWeather.SystemPatternTribeEntry:#44",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "_StructuresWeather.SystemPatternTribeEntry:#46",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/Rewards/Definitions:Resurrected_GP_RaiseDead1",
+      "field": "SetTribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "Faction/Rewards/Definitions:Resurrected_GP_RaiseDead2",
+      "field": "SetTribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "Faction/Rewards/Definitions:Resurrected_GP_RaiseDead3",
+      "field": "SetTribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "Faction/Rewards/Definitions:Resurrected_GP_RaiseDead4",
+      "field": "SetTribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "Faction/Rewards/Definitions:Resurrected_PlayerAbility_RaiseDead1",
+      "field": "SetTribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "Faction/Rewards/Definitions:Resurrected_PlayerAbility_RaiseDead2",
+      "field": "SetTribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "Faction/Rewards/Definitions:Resurrected_PlayerAbility_RaiseDead3",
+      "field": "SetTribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "Faction/Rewards/Definitions:Resurrected_PlayerAbility_RaiseDead4",
+      "field": "SetTribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "Faction/Rewards/Definitions:Zog_TurnUndead",
+      "field": "SetTribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "Faction/Tribes/Lists:Black",
+      "field": "Tribes",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/Tribes/Lists:GP_Tribe_All",
+      "field": "Tribes",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/Tribes/Lists:Mystic_Fort",
+      "field": "Tribes",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "Faction/Tribes/Lists:Undead",
+      "field": "Tribes",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "Marketplace/Builders/FactionMember/Tribe:Dark",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y5_IS_Warchief_Assassin",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y8_V_Warchief_Tracker",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Inv_T_Dark",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:Captain_Assassin",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y5_IS_Hench_02_Assassin",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y3_MP_Reinforcer",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Inv_T_Undead",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Undead"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y5_IS_Reinforcer_Marksman",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y5_IS_Hench_01_Marksman",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y3_MP_Bodyguard_01",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y3_MP_Bodyguard_02",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y8_V_Hench_01_Tracker",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y5_IS_Warchief_Marksman2",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y5_IS_Warchief_Marksman",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y1_VO_C1",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y1_VO_C2",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y1_VO_C3",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y1_VO_C4",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y1_VO_C5",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y1_VO_C6",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y8_V_Reinforcer_Olog",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y5_IS_Hench_02_Marksman",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y1_VO_Reinforcer",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y3_MP_C1",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y3_MP_C2",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y3_MP_C3",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y3_MP_C4",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y3_MP_C5",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:DLC5_Y3_MP_C6",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y8_V_Warchief_Tracker_Leader",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y8_V_Warchief_Olog2",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y8_V_Warchief_Olog3",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y8_V_Warchief_Tracker2",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y8_V_Reinforcer_Tracker",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y8_V_Warchief_Olog",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y8_V_Hench_01_Olog",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y5_IS_Warchief_Assassin2",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y5_IS_Warchief_Assassin3",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y8_V_Hench_02_Tracker",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y5_IS_Reinforcer_Assassin",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y5_IS_Hench_01_Assassin",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y8_V_Hench_02_Olog",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:Debug_Overlord_Black",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "Faction/FactionMemberBuilder:SW_Y5_IS_Warchief_Assassin_Leader",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#3",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#4",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#7",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#10",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#16",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#36",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#38",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#57",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#62",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#78",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#95",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#107",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#110",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#112",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#170",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#177",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#227",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#228",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#231",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#235",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#238",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#242",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#251",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#254",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#271",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#280",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#314",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#321",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#324",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#332",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#346",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#374",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#376",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#378",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#409",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#426",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#427",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#435",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#452",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#465",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#468",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#471",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#485",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#496",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#500",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#509",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#534",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#543",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#545",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#551",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#553",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#573",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#574",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#582",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#589",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#593",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#604",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_ShadowWar"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#635",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#636",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#652",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#654",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#668",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#674",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#703",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#706",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#710",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#716",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#734",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#748",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#774",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#779",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#780",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#788",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#789",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#790",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#803",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#811",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#816",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#822",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#830",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#835",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#838",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#839",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#866",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#871",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#879",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#901",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#905",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#912",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#929",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#932",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#936",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#959",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    },
+    {
+      "record": "_StructuresFactionTribeEntry:#966",
+      "field": "tribe",
+      "target": "Faction/Tribes/Definitions:TribeDef_Dark"
+    }
+  ]
+}

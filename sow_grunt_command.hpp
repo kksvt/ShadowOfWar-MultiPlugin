@@ -879,7 +879,7 @@ inline bool Install(int key = VK_F6, bool log = true, bool requireHeldStealthKey
     if (!outlineHook->hook()) { outlineHook.reset(); updateHook.reset(); Remove(); Log("outline hook FAILED"); return false; }
     native.outline = PLH::FnCast(outlineTrampoline, static_cast<OutlineFn>(nullptr));
     if (!updateHook->hook()) { updateHook.reset(); Remove(); Log("update hook FAILED"); return false; }
-    Log("v10 installed; rally includes allied Olog grunts; temporary follower markers");
+    Log("v10 installed; F5 rally includes allied Olog grunts; temporary follower markers; Shift+F6 group attack");
     return true;
 }
 } // namespace sow::grunt_command

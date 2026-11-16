@@ -1,0 +1,67 @@
+{
+  "source": "Local shipped game database; direct field 0x66FC592B -> picker entries 0x6BD57B1D -> selected trait 0xBCB47686",
+  "exceptions": {
+    "Quirk_NoLastChance": {
+      "roles": [
+        "Role_BlackHeart",
+        "Role_Cruel",
+        "Role_Merciless"
+      ],
+      "presets": [
+        "DLC3ToMain_Fixer"
+      ]
+    },
+    "Quirk_LifeSteal": {
+      "roles": [
+        "NemesisForge_Role_Bloody",
+        "NemesisForge_Role_FleshGlutton",
+        "NemesisForge_Role_LifeDrinker",
+        "NemesisForge_Role_PainLover",
+        "NemesisForge_Role_Warmonger",
+        "Role_Bloodlust",
+        "Role_Bloodthirsty",
+        "Role_Bloody",
+        "Role_BrainBiter",
+        "Role_Cannibal",
+        "Role_Devourer",
+        "Role_FleshGlutton",
+        "Role_FleshLover",
+        "Role_LifeDrinker",
+        "Role_PainLover",
+        "Role_PainSeeker",
+        "Role_Ravenous",
+        "Role_Stout",
+        "Role_Warmonger"
+      ],
+      "presets": [
+        "SotP_Volcano_SC"
+      ]
+    },
+    "Immune_Frost": {
+      "roles": [],
+      "presets": [
+        "DLC3_GC_Island_00",
+        "DLC3_GC_Island_01",
+        "DLC3_GC_Island_02",
+        "DLC3_GC_Island_04",
+        "DLC3_GC_MtnPass_00",
+        "DLC3_GC_MtnPass_01",
+        "DLC3_GC_MtnPass_02",
+        "DLC3_GC_MtnPass_04",
+        "DLC3_GC_MtnPass_05",
+        "DLC3_GC_SnowMtn_00",
+        "DLC3_GC_SnowMtn_01",
+        "DLC3_GC_SnowMtn_02",
+        "DLC3_GC_SnowMtn_03",
+        "DLC3_GC_SnowMtn_05",
+        "DLC3_GC_Volcano_00",
+        "DLC3_GC_Volcano_02",
+        "DLC3_GC_Volcano_03",
+        "DLC3_GC_Volcano_04",
+        "DLC3_GC_Volcano_05",
+        "SotP_SnowMtn_SC"
+      ]
+    }
+  },
+  "slayer_frost_evidence": "PG_Frost_Immune excludes MarkerList_CombatMasterMarkers, but Traits_CombatMaster XP setup -> CMT_FreezeImmune -> Picker_Resist_Frost_Immune grants Immune_Frost. Runtime reachability unresolved. Diagnostic only; never independently flags or strips frost immunity."
+}

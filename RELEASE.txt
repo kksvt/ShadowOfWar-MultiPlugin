@@ -1,0 +1,1 @@
+v5: tested v4 baseline plus exact retained-attack tribe inference. Replace hooks.cpp and all companion headers together; restart. No DLL deployed. New inference has fixture validation only.

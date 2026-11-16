@@ -14,6 +14,8 @@
 | Group attack | User-confirmed working; individual command/target/attack/damage traces observed |
 | Rally, Olog rally and participant icons | User-confirmed working |
 | Purchased upgrade multi-equip | User-confirmed working; persistence and exhaustive combinations not separately tested |
+| Defender repair | User-confirmed repair/fleeing/damage suppression on previous classes; expanded Berserker/Defender/Olog coverage fixture-tested, live check pending |
+| Read-only defender audit | 38 fixture tests; tested siege menu leaves global selection empty; exact CE-pointer capture required |
 
 The cleanup toggle is implemented; its two settings have not been documented as
 a separate controlled test matrix. A general positive report is not proof of
@@ -45,6 +47,13 @@ tools, not substitutes for the in-game observations above.
 - Accepted/dead/pre-dispatch corpse counts are not completed resurrections.
 - Registration index is a useful tested heuristic, not a comprehensive engine rank enum.
 - Native attacker-slot arbitration, resistance, movement and eligibility checks remain active.
+
+## Defender audit scope
+
+The separate [read-only utility](URUK-AUDIT.md) does not establish that a member
+is an imported Overlord or definitively cheated. Missing/unreadable data and
+ordinary Fearless/immunities are not cheating findings. The overview tribe/throne-
+room timing report remains unverified. No automatic repair is implemented.
 
 ## Open questions
 

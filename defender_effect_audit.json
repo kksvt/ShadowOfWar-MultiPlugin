@@ -1,0 +1,777 @@
+{
+  "source": "shipped Faction/Traits/Definitions primary item links (0xA15E0193); shared if referenced by any ordinary trait item link",
+  "traits_with_primary_items": 105,
+  "items": [
+    {
+      "item": "Berserker_Charge",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Berserker_Tackle"
+      ]
+    },
+    {
+      "item": "Buddy_Opener_Daze",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Opener_StealthDaze"
+      ]
+    },
+    {
+      "item": "Buddy_Opener_Taunt",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Opener_Taunt"
+      ]
+    },
+    {
+      "item": "Buddy_Opener_Terror",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Opener_TerrifyAttack"
+      ]
+    },
+    {
+      "item": "Buddy_Ultimate_Def_BalefireClusterBomb",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Ultimate_BalefireClusterBomb"
+      ]
+    },
+    {
+      "item": "Buddy_Ultimate_Def_Heal",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Ultimate_HealingWarcry"
+      ]
+    },
+    {
+      "item": "Buddy_Ultimate_Sup_Ammo",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Ultimate_SupplyDrop"
+      ]
+    },
+    {
+      "item": "Buddy_Ultimate_Sup_Ammo_Fire",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Ultimate_SupplyDrop_Fire"
+      ]
+    },
+    {
+      "item": "Buddy_Ultimate_Sup_Ammo_Poison",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Ultimate_SupplyDrop_Poison"
+      ]
+    },
+    {
+      "item": "Buddy_Ultimate_Sup_Banner",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Ultimate_Banner"
+      ]
+    },
+    {
+      "item": "Buddy_Ultimate_Sup_Bombs",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Ultimate_SupplyDrop_Bombs"
+      ]
+    },
+    {
+      "item": "Buddy_Ultimate_Sup_Bombs_Fire",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Ultimate_SupplyDrop_FireBombs"
+      ]
+    },
+    {
+      "item": "Buddy_Ultimate_Sup_Bombs_Poison",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Ultimate_SupplyDrop_PoisonBombs"
+      ]
+    },
+    {
+      "item": "Buddy_Ultimate_Sup_Smoke",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Ultimate_SmokeScreen"
+      ]
+    },
+    {
+      "item": "Determination_Easterling",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Determination"
+      ]
+    },
+    {
+      "item": "DodgeAway",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Skirmisher"
+      ]
+    },
+    {
+      "item": "DodgeAway_Attack",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Skirmisher_Attack"
+      ]
+    },
+    {
+      "item": "Dodge_Melee",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_QuickMovement",
+        "Easterling_SmokeBombTeliport"
+      ]
+    },
+    {
+      "item": "ESI_A_Archer_QuickShot",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_TripleShot"
+      ]
+    },
+    {
+      "item": "ET_ChampASS_MultiQuickThrow",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_FanOfDaggers"
+      ]
+    },
+    {
+      "item": "ET_ChampDES_FireMultiGrenade",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GrenadeMulti_Fire"
+      ]
+    },
+    {
+      "item": "ET_ChampDES_PoisonMultiGrenade",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GrenadeMulti_Poison"
+      ]
+    },
+    {
+      "item": "ET_ChampDES_StunMultiGrenade",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GrenadeMulti_Stun"
+      ]
+    },
+    {
+      "item": "ET_ChampTRA_MultiSnare",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Traps_EpicTraps"
+      ]
+    },
+    {
+      "item": "ET_ChampTRI_DodgeMelee_FlashBang",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_FlashBangTeliport"
+      ]
+    },
+    {
+      "item": "ET_CurseWarder",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Warder_Curse"
+      ]
+    },
+    {
+      "item": "ET_FireMaster",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_ElementalMaster_Fire"
+      ]
+    },
+    {
+      "item": "ET_FireWarder",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Warder_Fire"
+      ]
+    },
+    {
+      "item": "ET_GreatStrength",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GreatStrength"
+      ]
+    },
+    {
+      "item": "ET_GreatToughness",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GreatToughness"
+      ]
+    },
+    {
+      "item": "ET_MightyArchers",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Mighty_Archers"
+      ]
+    },
+    {
+      "item": "ET_MightyDefenders",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Mighty_Defenders"
+      ]
+    },
+    {
+      "item": "ET_MightyWarrior",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Mighty_Warrior"
+      ]
+    },
+    {
+      "item": "ET_PoisonMaster",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_ElementalMaster_Poison"
+      ]
+    },
+    {
+      "item": "ET_PoisonWarder",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Warder_Poison"
+      ]
+    },
+    {
+      "item": "EagleEye",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_EagleEye"
+      ]
+    },
+    {
+      "item": "East_ET_CommandCooldownReduction",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_CommandCooldownReduction"
+      ]
+    },
+    {
+      "item": "East_ET_CommandDamageBuff",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_CommandDamageBuff"
+      ]
+    },
+    {
+      "item": "East_ET_DamageBoostEnemyHealthLow",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_DamageBoostEnemyHealthLow"
+      ]
+    },
+    {
+      "item": "East_ET_DamageBoostSelfHealthHigh",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_DamageBoostSelfHealthHigh"
+      ]
+    },
+    {
+      "item": "East_ET_DamageBoostSelfHealthLow",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_DamageBoostSelfHealthLow"
+      ]
+    },
+    {
+      "item": "East_ET_DamageBoostVsRage",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_DamageBoostVsRage"
+      ]
+    },
+    {
+      "item": "East_ET_DefenseBoostSelfHealthHigh",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_DefenseBoostSelfHealthHigh"
+      ]
+    },
+    {
+      "item": "East_ET_DefenseBoostSelfHealthLow",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_DefenseBoostSelfHealthLow"
+      ]
+    },
+    {
+      "item": "East_ET_DefenseBoostVsRage",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_DefenseBoostVsRage"
+      ]
+    },
+    {
+      "item": "East_ET_EnemiesDropAmmo",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_EnemiesDropAmmo"
+      ]
+    },
+    {
+      "item": "East_ET_EnemiesDropCoin",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_EnemiesDropCoin"
+      ]
+    },
+    {
+      "item": "East_ET_EnemiesExplode",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_EnemiesExplode"
+      ]
+    },
+    {
+      "item": "East_ET_FullHealOpener",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_FullHealOpener"
+      ]
+    },
+    {
+      "item": "East_ET_HealthOnCommand",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_HealthOnCommand"
+      ]
+    },
+    {
+      "item": "East_ET_HealthOnKill",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_HealthOnKill"
+      ]
+    },
+    {
+      "item": "East_ET_OpenerDamageBuff",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_OpenerDamageBuff"
+      ]
+    },
+    {
+      "item": "East_ET_RefreshCommandExploit",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_RefreshCommandExploit"
+      ]
+    },
+    {
+      "item": "East_ET_TeamDamageBoostExploitedEnemies",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_TeamDamageBoostExploitedEnemies"
+      ]
+    },
+    {
+      "item": "East_ET_TeamDamageBoostOnFireEnemies",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_TeamDamageBoostOnFireEnemies"
+      ]
+    },
+    {
+      "item": "East_ET_TeamDamageBoostPoisonedEnemies",
+      "mercenary_only": true,
+      "traits": [
+        "East_ET_TeamDamageBoostPoisonedEnemies"
+      ]
+    },
+    {
+      "item": "Easterling_Medic",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Medic"
+      ]
+    },
+    {
+      "item": "ExplosiveShot",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_ExplosiveShot"
+      ]
+    },
+    {
+      "item": "FlamingWeapon",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Weapon_Fire"
+      ]
+    },
+    {
+      "item": "ForceDismount",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Dismount_Rider"
+      ]
+    },
+    {
+      "item": "I_Am_Easterling_Archetype_Defensive",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Archetype_Defensive"
+      ]
+    },
+    {
+      "item": "I_Am_Easterling_Archetype_Offensive",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Archetype_Offensive"
+      ]
+    },
+    {
+      "item": "I_Am_Easterling_Archetype_Supportive",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Archetype_Supportive"
+      ]
+    },
+    {
+      "item": "Item_AdvancedClass_Assassin",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_FanOfDaggers",
+        "Easterling_QuickMovement"
+      ]
+    },
+    {
+      "item": "Item_CaragorTamer",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_CaragorTamer"
+      ]
+    },
+    {
+      "item": "Item_HasAFireTrait",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GrenadeMulti_Fire",
+        "Easterling_Grenade_Fire",
+        "Easterling_Weapon_Fire"
+      ]
+    },
+    {
+      "item": "Item_HasAPoisonTrait",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GrenadeMulti_Poison",
+        "Easterling_Grenade_Poison",
+        "Easterling_Weapon_Poison"
+      ]
+    },
+    {
+      "item": "Item_HasAnElementalWeaponFromTrait",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Weapon_Fire",
+        "Easterling_Weapon_Poison"
+      ]
+    },
+    {
+      "item": "Item_Hate_General",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Hate_EnragedOrcs",
+        "Easterling_Hate_Injury"
+      ]
+    },
+    {
+      "item": "Item_Quirk_Deadly_Rage",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Deadly_Rage"
+      ]
+    },
+    {
+      "item": "Item_Quirk_Fearless",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Fearless"
+      ]
+    },
+    {
+      "item": "Item_Quirk_HasGang",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_EliteGang",
+        "Easterling_HasGang_Elite_Archers",
+        "Easterling_HasGang_Elite_Defenders",
+        "Easterling_HasGang_Elite_Warriors",
+        "Easterling_HasGang_Normal_Archers",
+        "Easterling_HasGang_Normal_Defenders",
+        "Easterling_HasGang_Normal_Warriors",
+        "Easterling_HasPets_Caragors",
+        "Easterling_HasPets_Caragors_Rare"
+      ]
+    },
+    {
+      "item": "Item_Quirk_Lifesteal",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Lifesteal"
+      ]
+    },
+    {
+      "item": "Item_Resistant_Fire",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Resistant_Fire"
+      ]
+    },
+    {
+      "item": "Item_Resistant_Poison",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Resistant_Poison"
+      ]
+    },
+    {
+      "item": "Item_Terror_General",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Fear_AlliedMercFear",
+        "Easterling_Terror_AlliedMercDeath"
+      ]
+    },
+    {
+      "item": "Item_Trait_AerialAlly",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_AerialAlly"
+      ]
+    },
+    {
+      "item": "Item_Trait_Assassin_QuickMovement",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_QuickMovement"
+      ]
+    },
+    {
+      "item": "Item_Trait_SniperShot",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_SniperShot"
+      ]
+    },
+    {
+      "item": "Item_Trait_TargetsCaptains",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_TargetsCaptains"
+      ]
+    },
+    {
+      "item": "Item_Trait_Vengence",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_Vengence"
+      ]
+    },
+    {
+      "item": "JumpAttack",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_JumpAttack"
+      ]
+    },
+    {
+      "item": "Mangler",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Mangler"
+      ]
+    },
+    {
+      "item": "Monster_Slayer",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_MonsterSlayer",
+        "Easterling_MonsterSlayer_Archer"
+      ]
+    },
+    {
+      "item": "Monster_Slayer_EasterlingArcher",
+      "mercenary_only": true,
+      "traits": [
+        "Easterling_MonsterSlayer_Archer"
+      ]
+    },
+    {
+      "item": "MultiHit_3Hits",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_MultiAttack"
+      ]
+    },
+    {
+      "item": "Orc_2HR_Crossbow_PowerShot",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Power_Shot"
+      ]
+    },
+    {
+      "item": "Orc_Grenade_Fire",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GrenadeMulti_Fire"
+      ]
+    },
+    {
+      "item": "Orc_Grenade_Poison",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GrenadeMulti_Poison"
+      ]
+    },
+    {
+      "item": "Orc_Grenade_Stun",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GrenadeMulti_Stun"
+      ]
+    },
+    {
+      "item": "ParentItem_CounterBlock2",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_BlockCounter"
+      ]
+    },
+    {
+      "item": "PoisonedWeapon",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Weapon_Poison"
+      ]
+    },
+    {
+      "item": "PowerShot",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Power_Shot"
+      ]
+    },
+    {
+      "item": "Reckless_AOE",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_RecklessAOE"
+      ]
+    },
+    {
+      "item": "Repostion_Target",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Reposition"
+      ]
+    },
+    {
+      "item": "SmokeBombTeleport",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_SmokeBombTeliport"
+      ]
+    },
+    {
+      "item": "Summoner_Gang",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Summoner_Gang"
+      ]
+    },
+    {
+      "item": "Tank_AOE",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_TankAOE"
+      ]
+    },
+    {
+      "item": "ThrowGrenadeAtFeet_Fire",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_ThrowGrenadesAtFeet_Fire"
+      ]
+    },
+    {
+      "item": "ThrowGrenadeAtFeet_Poison",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_ThrowGrenadesAtFeet_Poison"
+      ]
+    },
+    {
+      "item": "ThrowGrenadeAtFeet_Recoil_Fire",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_ThrowGrenadesAtFeet_Fire"
+      ]
+    },
+    {
+      "item": "ThrowGrenadeAtFeet_Recoil_Poison",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_ThrowGrenadesAtFeet_Poison"
+      ]
+    },
+    {
+      "item": "ThrowGrenade_Fire",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GrenadeMulti_Fire",
+        "Easterling_Grenade_Fire"
+      ]
+    },
+    {
+      "item": "ThrowGrenade_Poison",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GrenadeMulti_Poison",
+        "Easterling_Grenade_Poison"
+      ]
+    },
+    {
+      "item": "ThrowGrenade_Stun",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_GrenadeMulti_Stun",
+        "Easterling_Grenade_Stun"
+      ]
+    },
+    {
+      "item": "Tracker_Trap",
+      "mercenary_only": false,
+      "traits": [
+        "Easterling_Traps"
+      ]
+    }
+  ],
+  "no_primary_item": [
+    "Easterling_GiftGiver",
+    "Easterling_Hate_AlliedCaptainDamage",
+    "Easterling_Hate_PlayerInjury",
+    "Easterling_ProtectiveGang",
+    "Easterling_Savior"
+  ],
+  "blacklisted_trait_count": 110
+}

@@ -11,6 +11,8 @@ using UpdateFn = void(__fastcall*)(Address, Address, Address);
 using TimerFn = void(__fastcall*)(Address, float);
 inline std::unique_ptr<PLH::x64Detour> addHook, updateHook, timerHook;
 inline std::uint64_t addTrampoline = 0, updateTrampoline = 0, timerTrampoline = 0;
+using InventoryObserver=void(*)(const char*,Address,Address,int,Address,int);
+inline InventoryObserver inventoryObserver=nullptr;
 inline float delayScale = 0.4f;
 inline bool running = true, diagnostics = true;
 inline thread_local Address gruntTimer = 0;
@@ -103,8 +105,12 @@ inline int __fastcall AddDetour(Address inventory, Address item, int count, Addr
             } else Log("Fearless lookup failed; unchanged");
         } else Log("walk-only owner not a verified Orc grunt; unchanged");
     }
-    return PLH::FnCast(addTrampoline, static_cast<AddFn>(nullptr))(
+    const auto caller=reinterpret_cast<Address>(_ReturnAddress());
+    if(inventoryObserver)inventoryObserver("add-before",inventory,item,count,caller,0);
+    const auto result=PLH::FnCast(addTrampoline, static_cast<AddFn>(nullptr))(
         inventory, item, count, fourth, fifth, sixth, seventh, eighth);
+    if(inventoryObserver)inventoryObserver("add-after",inventory,item,count,caller,result);
+    return result;
 }
 
 inline bool Remove() {

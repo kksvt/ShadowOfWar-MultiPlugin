@@ -22,7 +22,7 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{86d95f2f-c20b-46aa-98a2-88da6946b6b3}</ProjectGuid>
-    <RootNamespace>ShadowOfWarPlugin</RootNamespace>
+    <RootNamespace>ShadowOfWarMultiPlugin</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>ShadowOfWar-MultiPlugin</ProjectName>
   </PropertyGroup>
@@ -177,6 +177,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="sow_command_gate.hpp" />
+    <ClInclude Include="sow_defender_blacklist.hpp" />
+    <ClInclude Include="sow_defender_repair.hpp" />
     <ClInclude Include="sow_entities.hpp" />
     <ClInclude Include="sow_gear_resurrection.hpp" />
     <ClInclude Include="sow_grunt_aggression.hpp" />

@@ -1,0 +1,222 @@
+{
+  "source": "locally shipped game.gamedb",
+  "inference": [
+    {
+      "trait": "TribeAttack_Dark",
+      "tribe": "TribeDef_Dark",
+      "picker": "Picker_TribeAttack_Dark",
+      "evidence": "tribe -> picker -> picker entry -> trait"
+    },
+    {
+      "trait": "TribeAttack_Feral",
+      "tribe": "TribeDef_Feral",
+      "picker": "Picker_TribeAttack_Feral",
+      "evidence": "tribe -> picker -> picker entry -> trait"
+    },
+    {
+      "trait": "TribeAttack_Machine",
+      "tribe": "TribeDef_Machine",
+      "picker": "Picker_TribeAttack_Machine",
+      "evidence": "tribe -> picker -> picker entry -> trait"
+    },
+    {
+      "trait": "TribeAttack_Marauder",
+      "tribe": "TribeDef_Marauder",
+      "picker": "Picker_TribeAttack_Marauder",
+      "evidence": "tribe -> picker -> picker entry -> trait"
+    },
+    {
+      "trait": "TribeAttack_Mystic",
+      "tribe": "TribeDef_Sorcerous",
+      "picker": "Picker_TribeAttack_Mystic",
+      "evidence": "tribe -> picker -> picker entry -> trait"
+    },
+    {
+      "trait": "TribeAttack_Terror",
+      "tribe": "TribeDef_Terror",
+      "picker": "Picker_TribeAttack_Terror",
+      "evidence": "tribe -> picker -> picker entry -> trait"
+    },
+    {
+      "trait": "TribeAttack_Warmonger",
+      "tribe": "TribeDef_Warmonger",
+      "picker": "Picker_TribeAttack_Warmonger",
+      "evidence": "tribe -> picker -> picker entry -> trait"
+    },
+    {
+      "trait": "TribeAttack_Slaughter",
+      "tribe": "TribeDef_Slaughter",
+      "picker": "Picker_TribeAttack_Slaughter",
+      "evidence": "tribe -> picker -> picker entry -> trait"
+    },
+    {
+      "trait": "TribeAttack_Outlaw",
+      "tribe": "TribeDef_Outlaw",
+      "picker": "Picker_TribeAttack_Outlaw",
+      "evidence": "tribe -> picker -> picker entry -> trait"
+    }
+  ],
+  "tribes": [
+    {
+      "tribe": "TribeDef_Dark",
+      "tribe_lists": [
+        "Black",
+        "GP_Tribe_All"
+      ],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_Gondor",
+      "tribe_lists": [],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_Slaughter",
+      "tribe_lists": [
+        "InitialOverlord_Volcano",
+        "Slaughterhouse",
+        "GP_Tribe_All_NoDark",
+        "GP_Tribe_All"
+      ],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_Outlaw",
+      "tribe_lists": [
+        "InitialOverlord_SnowMountain",
+        "Outlaw",
+        "GP_Tribe_All_NoDark",
+        "GP_Tribe_All"
+      ],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_Warmonger",
+      "tribe_lists": [
+        "InitialOverlord_SnowMountain",
+        "Warmonger",
+        "GP_Tribe_All_NoDark",
+        "GP_Tribe_All"
+      ],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_Feral",
+      "tribe_lists": [
+        "Beast",
+        "GP_Tribe_All_NoDark",
+        "GP_Tribe_All"
+      ],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "DLC_TribeDef_Sorcerous_Poison",
+      "tribe_lists": [
+        "Mystic",
+        "MysticP_Fort"
+      ],
+      "fort_named_lists": [
+        "MysticP_Fort"
+      ]
+    },
+    {
+      "tribe": "TribeDef_Terror",
+      "tribe_lists": [
+        "InitialOverlord_Volcano",
+        "GP_Tribe_All_NoDark",
+        "GP_Tribe_All",
+        "Torturer"
+      ],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_Easterling",
+      "tribe_lists": [
+        "Easterling"
+      ],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_Sauron",
+      "tribe_lists": [],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_Bruz",
+      "tribe_lists": [
+        "Warmonger"
+      ],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_Militant",
+      "tribe_lists": [
+        "GP_Tribe_All_NoDark",
+        "Fanatic"
+      ],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_ShadowWar",
+      "tribe_lists": [],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_Marauder",
+      "tribe_lists": [
+        "InitialOverlord_SnowMountain",
+        "Regal",
+        "GP_Tribe_All_NoDark",
+        "GP_Tribe_All"
+      ],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_Tribeless",
+      "tribe_lists": [],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_NazgulTwins",
+      "tribe_lists": [
+        "Warmonger",
+        "Black"
+      ],
+      "fort_named_lists": []
+    },
+    {
+      "tribe": "TribeDef_Sorcerous",
+      "tribe_lists": [
+        "InitialOverlord_SnowMountain",
+        "GP_Tribe_All_NoDark",
+        "GP_Tribe_All",
+        "Mystic_Fort",
+        "Mystic"
+      ],
+      "fort_named_lists": [
+        "Mystic_Fort"
+      ]
+    },
+    {
+      "tribe": "TribeDef_Undead",
+      "tribe_lists": [
+        "Mystic_Fort",
+        "Undead"
+      ],
+      "fort_named_lists": [
+        "Mystic_Fort"
+      ]
+    },
+    {
+      "tribe": "TribeDef_Machine",
+      "tribe_lists": [
+        "InitialOverlord_Volcano",
+        "GP_Tribe_All_NoDark",
+        "Industrial",
+        "GP_Tribe_All"
+      ],
+      "fort_named_lists": []
+    }
+  ],
+  "limitations": "Fort-named list membership is supporting data, not a traced runtime geometry whitelist. Absence alone does not justify repair."
+}
