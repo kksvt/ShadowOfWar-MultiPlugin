@@ -52,11 +52,13 @@ inline bool Cleanup(Address actor,Address member) {
         const auto ctx=defender_repair::ReadClassContext(member);
         static constexpr const char* invalidItems[][2]={
             {"Quirk_NoLastChance","Item_Quirk_NoLastChance"},
-            {"Quirk_LifeSteal","Item_Quirk_Lifesteal"}};
+            {"Quirk_LifeSteal","Item_Quirk_Lifesteal"},
+            {"Quirk_SecondWind","SecondWind"},
+            {"Quirk_DyingCommand","DyingCommand"}};
         for(const auto& pair:invalidItems){
             Record trait;trait.nameComplete=true;
             std::snprintf(trait.name.data(),trait.name.size(),"%s",pair[0]);
-            if(!defender_repair::InvalidClassTrait(trait,ctx))continue;
+            if(!defender_repair::OffClassTrait(trait,ctx))continue;
             if(!Registered(actor,member))return false;
             const auto item=native.lookup(pair[1]);
             if(!item){++unknown;Report(actor,member,pair[1],-1,-1,0);continue;}

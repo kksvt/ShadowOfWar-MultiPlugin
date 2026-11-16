@@ -19,11 +19,14 @@ prototype histories or superseded installation instructions.
 | Group attack | Nearby eligible friendly Orc grunts receive the same selected enemy target |
 | Rally | Nearby eligible friendly Orc/Olog grunts approach the player, with temporary participant icons |
 | Skill multi-equip | Selecting an upgrade preserves already-equipped, purchased siblings |
-| Defender repair | F9-armed invasion repair; guarded structural normalization, tribe inference, mercenary-effect cleanup, optional Awe and flagged-source damage blocking |
+| Defender repair | Automatic imported-invasion repair; guarded structural normalization, tribe inference, mercenary-effect cleanup, optional Awe and flagged-source damage blocking |
 
 Healing and unrelated damage remain outside the damage multipliers. Registered
 membership is a captain-candidate heuristic, not a universal rank definition.
 Native eligibility, navigation and combat priorities continue to apply.
+
+Too many Gondorian Wights or resurrected grunts active at once may break their AI.
+No safe population limit has been established; see [the necromancy limitation](NECROMANCY.md#active-undead-population-limitation).
 
 ## Controls
 
@@ -34,7 +37,7 @@ configurable in `hooks.cpp`.
 | --- | --- |
 | Hold Left Shift + X, release X | Aim and issue the group attack |
 | Press Z | Rally eligible allies toward the player; no Shift modifier |
-| Hold F9 while opening a defender card | Arm loaded invasion-faction repair and assault binding reapplication |
+| Open conquest preview / defender card | Automatically repair the loaded imported roster and arm assault reapplication; no F9 required |
 
 Installation messages need not contain key names. Attack participation is within
 30m of the player and 40m of the target. Rally selects within 30m and ends at
@@ -47,6 +50,7 @@ Installation messages need not contain key names. Attack participation is within
 - [Grunt behavior and commands](GRUNT-COMMANDS.md): aggression, group targeting, rally and native APIs.
 - [Skill multi-equip](MULTI-SKILLS.md): ownership-preserving selection and elemental compatibility.
 - [Defender repair](DEFENDER-REPAIR.md): three settings, supported classes, native effect cleanup and diagnostics.
+- [Automatic repair](DEFENDER-AUTOMATIC.md): activation guards, Second Wind/off-class cleanup and the next live test.
 - [Structural normalization](DEFENDER-STRUCTURE.md): current AI/class/role/tribe repair, retained-attack inference and validation limits.
 - [Validation and limitations](VALIDATION.md): evidence status, reproducibility and unresolved behavior.
 - [Read-only Uruk audit](URUK-AUDIT.md): separate defender-comparison utility; live overview selection is not yet verified.

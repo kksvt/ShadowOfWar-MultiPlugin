@@ -178,7 +178,15 @@
   <ItemGroup>
     <ClInclude Include="sow_command_gate.hpp" />
     <ClInclude Include="sow_defender_blacklist.hpp" />
+    <ClInclude Include="sow_defender_class_policy.hpp" />
+    <ClInclude Include="sow_defender_effects.hpp" />
+    <ClInclude Include="sow_defender_flee_trace.hpp" />
+    <ClInclude Include="sow_defender_morale.hpp" />
+    <ClInclude Include="sow_defender_normalize.hpp" />
     <ClInclude Include="sow_defender_repair.hpp" />
+    <ClInclude Include="sow_defender_spawn_audit.hpp" />
+    <ClInclude Include="sow_defender_structure_policy.hpp" />
+    <ClInclude Include="sow_defender_trait_policy.hpp" />
     <ClInclude Include="sow_entities.hpp" />
     <ClInclude Include="sow_gear_resurrection.hpp" />
     <ClInclude Include="sow_grunt_aggression.hpp" />

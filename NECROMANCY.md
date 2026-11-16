@@ -4,6 +4,19 @@ The features below are user-tested. Native trigger qualification and corpse
 eligibility remain in effect; raising a selection cap does not guarantee that
 many valid corpses exist or successfully resurrect.
 
+## Active undead population limitation
+
+Having too many Gondorian Wights or resurrected grunts active at once may break
+their AI. This is a user-reported gameplay limitation; the cause and a safe maximum
+population have not been established. Higher summon/resurrection caps do not
+guarantee that every spawned ally will behave correctly.
+
+Avoid accumulating very large undead armies. Keeping `cleanupOldGhosts=true`
+retains native cleanup of previous wights when recasting; lowering the summon or
+resurrection bonuses may also help limit accumulation. Neither is a verified fix
+for AI that has already stopped working. The plugin does not enforce a global
+active-undead population cap.
+
 ## Mask of the High King
 
 The native one-bar action `PC_Summon_Gondorians_Undead_NecroAoE_Lvl1` issues

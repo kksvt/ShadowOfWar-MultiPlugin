@@ -16,7 +16,7 @@
 
 namespace sow::defender_repair {
 // Experimental: enable before opening defender cards. Disabled installs no hook.
-// Public feature settings. F9 activation and repair policy are internal defaults.
+// Public feature settings. Imported-roster activation and repair policy are automatic.
 struct Config { bool enabled=false; bool diagnostics=true; bool forceTerrorPlayer=true; };
 using RemoveFn=bool(__fastcall*)(Address,Address);
 using LookupFn=Address(*)(Address,const char*);
@@ -56,6 +56,7 @@ inline void(*beforeRosterRepair)(Address)=nullptr;
 inline std::uint64_t trampoline=0;
 inline thread_local bool handling=false;
 inline ULONGLONG lastBatch=0;
+inline Address lastBatchKey=0;
 inline void Log(const char* event,Address member,const char* trait="",bool /*summary*/=false) {
     if(!config.diagnostics)return;
     char out[512]{};
@@ -365,14 +366,19 @@ inline Address ClassMismatch(Address member,const List& traits) {
     for(std::size_t i=0;i<traits.size;++i)if(InvalidClassTrait(ReadRecord(traits.values[i]),ctx))return traits.values[i];
     return 0;
 }
+inline bool OffClassTrait(const Record& trait,const ClassContext& ctx) {
+    if(!ctx.specialization)return false;
+    if(trait.Named("Quirk_DyingCommand"))return std::strcmp(ctx.specialization,"Marker_Specialization_Commander")!=0;
+    if(trait.Named("Quirk_SecondWind"))return std::strcmp(ctx.specialization,"Marker_Specialization_Tank")!=0;
+    return InvalidClassTrait(trait,ctx);
+}
 inline void CleanOffClassTraits(Address member) {
     if(!Eligible(member))return;
     const auto traits=Traits(member);const auto ctx=ReadClassContext(member);
     if(!traits.valid || !ctx.specialization){Log("off-class cleanup skipped; incomplete or ambiguous context",member,"",true);return;}
     for(std::size_t i=0;i<traits.size;++i){
         const auto record=ReadRecord(traits.values[i]);
-        const bool dying=record.Named("Quirk_DyingCommand") && std::strcmp(ctx.specialization,"Marker_Specialization_Commander")!=0;
-        if(!dying && !InvalidClassTrait(record,ctx))continue;
+        if(!OffClassTrait(record,ctx))continue;
         if(!Eligible(member))return;
         const bool removed=removeTrait(member,traits.values[i]);const auto after=Traits(member);
         Log(removed && after.valid && !Has(after,traits.values[i])?"removed off-class trait on flagged defender":"off-class removal unconfirmed",
@@ -530,6 +536,25 @@ inline void ArmForSpawn(Address member) {
         armedFaction=name.name.data();Log("binding reapply armed until disable/restart",member,name.name.data(),true);
     }
 }
+inline bool AutomaticSeedReady(Address member) {
+    if(!config.enabled || ScopeReason(member))return false;
+    const auto backing=At<Address>(member,0x158),appearance=At<Address>(member,0x2D8);
+    return backing.readable && backing.value && appearance.readable && appearance.value &&
+        Traits(member).valid && Traits(member,0x1B0).valid;
+}
+// Called under stateMutex/handling from the existing native UI formatter.
+inline void AutomaticRepair(Address member,ULONGLONG now) {
+    if(!config.enabled || ScopeReason(member))return;
+    const auto key=At<Address>(member,0x178);
+    if(!key.readable || !key.value)return;
+    // A different imported roster is not delayed by the previous fort's timer.
+    if(lastBatch && lastBatchKey==key.value && now>=lastBatch && now-lastBatch<1500)return;
+    if(!AutomaticSeedReady(member))return;
+    ArmForSpawn(member);
+    lastBatch=now;lastBatchKey=key.value;
+    Log("automatic imported roster pass",member);
+    RepairFaction(member);
+}
 inline Address __fastcall Spawn(Address actor,Address member,bool initialize) {
     bool observed=false,track=false,traceFlagged=false;
     if(!handling){
@@ -571,18 +596,12 @@ inline Address __fastcall Spawn(Address actor,Address member,bool initialize) {
 }
 
 inline Address __fastcall Format(Address member,Address properties,bool flag) {
-    // The formatter also runs while loading/caching UI data. Require explicit
-    // held input while this process owns the foreground window.
-    DWORD foregroundPid=0;
-    GetWindowThreadProcessId(GetForegroundWindow(),&foregroundPid);
-    const bool requested=config.enabled &&
-        foregroundPid==GetCurrentProcessId() && (GetAsyncKeyState(VK_F9)&0x8000);
+    // The formatter also runs during loading. Only complete, owned, unspawned
+    // imported invasion members may trigger a pass; no keyboard polling needed.
     std::unique_lock<std::mutex> lock(stateMutex,std::defer_lock);
-    if(!handling && requested && lock.try_lock()){
+    if(!handling && config.enabled && lock.try_lock()){
         struct Scope{Scope(){handling=true;}~Scope(){handling=false;}} scope;
-        ArmForSpawn(member);
-        const auto now=GetTickCount64();
-        if((!lastBatch || now-lastBatch>=1500) && !ScopeReason(member)){lastBatch=now;RepairFaction(member);}
+        AutomaticRepair(member,GetTickCount64());
     }
     if(lock.owns_lock())lock.unlock();
     return PLH::FnCast(trampoline,static_cast<FormatFn>(nullptr))(member,properties,flag);
@@ -593,7 +612,7 @@ template<std::size_t N> inline bool Signature(Address address,const unsigned cha
 }
 inline bool Install(Config settings={}) {
     if(hook || spawnHook){Log("install rejected; hook already exists",0);return false;}
-    config=settings;lastBatch=0;marked.clear();armedFaction.clear();
+    config=settings;lastBatch=0;lastBatchKey=0;marked.clear();armedFaction.clear();
     StoreThreats(std::make_shared<const std::vector<Threat>>());
     if(!config.enabled){Log("disabled by configuration; no hook installed",0);return true;}
     image=reinterpret_cast<Address>(GetModuleHandleW(nullptr));
@@ -627,7 +646,7 @@ inline bool Install(Config settings={}) {
         Log("install failed; actor binding detour rejected; check hook-removal result before unload",0);return false;
     }
     char installed[160]{};
-    std::snprintf(installed,sizeof(installed),"installed; F9 activation; forceTerror=%u diagnostics=%u",unsigned(config.forceTerrorPlayer),unsigned(config.diagnostics));
+    std::snprintf(installed,sizeof(installed),"v6 installed; automatic imported roster repair; forceTerror=%u diagnostics=%u",unsigned(config.forceTerrorPlayer),unsigned(config.diagnostics));
     Log(installed,0);return true;
 }
 inline bool Remove() {
@@ -636,6 +655,7 @@ inline bool Remove() {
     if(formatRemoved)hook.reset();if(spawnRemoved)spawnHook.reset();
     if(!formatRemoved || !spawnRemoved)return false;
     armedFaction.clear();
+    lastBatch=0;lastBatchKey=0;
     StoreThreats(std::make_shared<const std::vector<Threat>>());
     hook.reset();config.enabled=false;removeTrait=nullptr;addTrait=nullptr;lookupTrait=nullptr;hasCapacity=nullptr;marked.clear();return true;
 }

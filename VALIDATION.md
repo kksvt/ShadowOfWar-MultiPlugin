@@ -53,9 +53,19 @@ tools, not substitutes for the in-game observations above.
 The separate [read-only utility](URUK-AUDIT.md) does not establish that a member
 is an imported Overlord or definitively cheated. Missing/unreadable data and
 ordinary Fearless/immunities are not cheating findings. The overview tribe/throne-
-room timing report remains unverified. No automatic repair is implemented.
+room timing cannot be established by that utility alone. It performs no repair.
+The separate DLL repair feature now activates automatically for complete scoped
+imported rosters. User testing confirmed Dark tribe/room replacement for ShadowWar
+and Tribeless Overlords. The v6 loading capture confirms automatic activation and
+off-class Second Wind removal; it is not proof of every native path or save-state
+guarantee. See [current repair behavior](DEFENDER-AUTOMATIC.md).
 
 ## Open questions
+
+User-reported: too many simultaneously active Gondorian Wights or resurrected
+grunts may break their AI. The cause, safe population threshold and recovery method
+are unverified. Raised summon/resurrection limits are not a guarantee of correct
+AI behavior at those populations, and no global active-undead cap is enforced.
 
 Multi-equipped action/element combinations can still resolve by native priority.
 Persistence of all active siblings across save/reload needs a specific test.

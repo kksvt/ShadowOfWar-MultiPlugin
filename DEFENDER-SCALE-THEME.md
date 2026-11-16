@@ -1,3 +1,7 @@
+> Historical v4 scale/theme investigation. Current sources are v6; activation is
+> automatic. The older F9 test below describes the completed v4 experiment, not
+> current usage. See DEFENDER-AUTOMATIC.md and DEFENDER-STRUCTURE.md.
+
 # Scale and fortress tribe investigation — 2026-11-16
 
 ## Delivery
@@ -18,7 +22,7 @@ claiming it was the cause.
 
 No new hooks, public options or appearance-memory writes are introduced. Existing
 Shift+X/Z binds and debug damage protection are preserved. The v2 reference ZIP and
-v3 rollback ZIP remain unchanged. Top-level loose sources now represent v5, which incorporates this tested v4
+v3 rollback ZIP remain unchanged. Top-level loose sources now represent v6, which incorporates this tested v4
 baseline plus tribe inference; use the current package's files together.
 
 ## Confirmed field mappings
@@ -98,4 +102,4 @@ The completed v4 assault retained the Overlord's Dark tribe/Outcast role through
 binding and ordinary Defender runtime class. Bringer spawned as Tough Infantry;
 the user noticed no oversized enemies and did not fall through the floor. This
 supports the tested pre-spawn path; it does not validate an independent scale write.
-The current v5 policy and research limits are in DEFENDER-STRUCTURE.md.
+The current structural policy and research limits are in DEFENDER-STRUCTURE.md.

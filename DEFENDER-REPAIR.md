@@ -22,7 +22,7 @@ constexpr bool defenderRepairDiagnostics = true;
   and blocked-damage observations. False avoids installing the diagnostic-only
   inventory observer hook. Initialization failure messages remain available.
 
-These replace the former individual policy toggles. F9 activation, full loaded
+These replace the former individual policy toggles. Automatic activation, full loaded
 faction traversal, binding reapplication, excess-epic detection, secondary-trait
 replacement and native mercenary-only item cleanup are internal defaults.
 Player debug invincibility remains a separate gameplay/debug option, unchanged.
@@ -31,14 +31,16 @@ logging remains disabled. Defaults above retain diagnostics for the coverage tes
 
 ## Use
 
-Rebuild with the included hooks.cpp and companion headers, restart, then hold F9
-while opening an eligible defender card in the conquest preview. Release F9.
-The native UI formatter runs during loading too; F9 explicitly arms the work.
-An eligible card seeds a bounded traversal of its loaded invasion-faction roster,
-covering eligible bodyguards whose cards are not exposed. Passes are throttled
+Rebuild with the included hooks.cpp and companion headers, restart, and open the
+conquest preview normally. No F9 key is required. When the native formatter sees
+a complete, scoped imported member, it automatically arms repair and seeds a
+bounded traversal of its loaded invasion-faction roster. Opening a detail card
+exercises the formatter if the overview has not populated it yet. See
+DEFENDER-AUTOMATIC.md for readiness guards and validation limits. This traversal
+covers eligible bodyguards whose cards are not exposed. Passes are throttled
 to one per 1.5 seconds. This is not a guaranteed enumeration of unloaded members.
 
-F9 also arms the exact invasion-faction name for the session. During the assault,
+Automatic activation also arms the exact invasion-faction name for the session. During the assault,
 new member pointers are reconsidered at native member/actor binding. Arming lasts
 until module removal/restart or arming another invasion faction; later conquests
 of that same faction can also be covered. It is not a decoded assault-session ID.
@@ -68,14 +70,14 @@ faction and matching faction-manager owner. Class alone never flags a defender.
 SQ_Zog and ZTestVeryLargeOrcInfantry are normalized to supported ordinary Orc
 classes when the guarded structural conversion succeeds. Unknown classes and full
 special-character appearances remain unsupported. Import-scope validation is
-separate from class support, so F9 can arm a valid imported roster from an
+separate from class support, so automatic activation can arm a valid imported roster from an
 unsupported-class card. Home-world and DLC factions remain outside scope.
 
 ## Structural repair
 
 Current normalization covers the narrow AI/class, special-role and invalid-tribe
 replacements documented in DEFENDER-STRUCTURE.md. It runs on scoped, unspawned
-members in the F9 roster pass and before actor construction. The full construction
+members in the automatic roster pass and before actor construction. The full construction
 hook may select a validated ordinary template; all other arguments and returns are
 preserved. Native role/tribe setters retain their engine bookkeeping. Role_Outcast
 also changes the displayed epithet to the Outcast.
@@ -124,7 +126,9 @@ specialization is required. Missing/ambiguous markers, unreadable role names or
 unreadable non-null presets do not establish a mismatch. These are current-state
 rules, not a reconstruction of all past title changes or acquisition history.
 Dying Command remains cleanup-only outside Commander on already flagged members.
-Second Wind is not yet an automatic detection rule.
+Second Wind is likewise cleanup-only outside Tank on already flagged members.
+Neither trait alone establishes cheating. Their SecondWind/DyingCommand runtime
+items are also removed from registered flagged off-class actors after binding.
 
 Slayer (Marker_Specialization_CombatMaster) plus Immune_Frost produces a review-only
 diagnostic. Resistant_Frost does not. The normal PG_Frost_Immune reward excludes
@@ -263,5 +267,5 @@ named classes and unreadable pointers. The tested v4 structural paths have live 
 Live user tests confirmed stored repair, native item cleanup, restored fleeing after
 Fearless-effect removal and positive damage suppression on previously supported
 classes. Newly expanded class coverage and consolidated settings still need an
-in-game pass. For that test leave diagnostics true, arm F9 and share the roster and
+in-game pass. For that test leave diagnostics true, open the preview without F9 and share the roster and
 effect-cleanup summaries; set diagnostics false afterward for quieter normal use.

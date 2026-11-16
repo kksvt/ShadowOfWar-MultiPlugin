@@ -176,7 +176,7 @@ inline bool Install(){
     native={&ring_might::Lookup,reinterpret_cast<RecordFn>(base+0x57710C),reinterpret_cast<RecordFn>(base+0x577124),
         reinterpret_cast<TribeFn>(base+0x1BC6718),reinterpret_cast<RoleFn>(base+0x1BC63F8),&WriteRecord};
     enabled=true;dr::beforeRosterRepair=&Normalize;
-    dr::Log("structural normalization v5 enabled; tribe attack inference; Undead preserved; unspawned imported members only",0);return true;
+    dr::Log("structural normalization v6 enabled; tribe attack inference; Undead preserved; unspawned imported members only",0);return true;
 }
 inline bool Remove(){if(dr::beforeRosterRepair==&Normalize)dr::beforeRosterRepair=nullptr;enabled=false;native={};return true;}
 }

@@ -1,0 +1,19 @@
+{
+  "version": 6,
+  "activation": "Existing native formatter; automatic complete imported unspawned seed; 1500ms same-faction-key throttle.",
+  "cleanup_only": [
+    {
+      "trait": "Quirk_SecondWind",
+      "item": "SecondWind",
+      "allowed_specialization": "Marker_Specialization_Tank"
+    },
+    {
+      "trait": "Quirk_DyingCommand",
+      "item": "DyingCommand",
+      "allowed_specialization": "Marker_Specialization_Commander"
+    }
+  ],
+  "scope": "Only already flagged/remembered members and registered flagged actors; no independent cheating detection from these two traits.",
+  "evidence": "Exact locally shipped trait -> Inventory/Items links; advanced-class cleanup policy preserves Tank/Commander and fails closed on ambiguous markers.",
+  "live_validation": "Pending for automatic activation and new off-class cleanup."
+}

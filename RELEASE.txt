@@ -1,1 +1,1 @@
-v5: tested v4 baseline plus exact retained-attack tribe inference. Replace hooks.cpp and all companion headers together; restart. No DLL deployed. New inference has fixture validation only.
+v6: automatic imported-roster activation; no F9 required. Off-class Second Wind and Dying Command stored/runtime cleanup on separately flagged defenders. Replace hooks.cpp and all headers together, restart. Fixture/compile checks pass; live validation pending. No DLL deployed.

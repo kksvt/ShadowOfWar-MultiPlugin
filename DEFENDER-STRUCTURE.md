@@ -2,10 +2,11 @@
 
 ## Current implementation
 
-The loose sources and v5 package contain the tested v4 normalization baseline plus
+The loose sources and v6 package contain the tested v4 normalization baseline plus
 tribe inference from retained attacks. v3 remains an archived rollback, not the
 current implementation. Configuration stays limited to enable, force Terror_Player,
-and diagnostics. F9 must arm an allowed imported conquest faction.
+and diagnostics. Complete scoped imported members automatically arm repair when
+the native formatter processes them; no F9 is required. See DEFENDER-AUTOMATIC.md.
 
 Normalization checks identity, faction ownership, row, unspawned state and readable
 member containers. It handles SQ_Zog -> Orc_Spearman/AI_Spearman and the oversized
