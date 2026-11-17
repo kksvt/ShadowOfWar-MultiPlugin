@@ -1,0 +1,252 @@
+{
+  "source": "Local shipped game.gamedb; exact grant/picker/selected-trait links, not exclusion references",
+  "reinforcements": {
+    "trait": "Quirk_Summoner_Gang",
+    "picker": "Picker_Summoner_Gang",
+    "item": "Summoner_Gang",
+    "catalyst": "Summon_Gang",
+    "direct_role_grants": [],
+    "direct_preset_grants": [
+      {
+        "name": "DLC3_Architect",
+        "added_markers": [
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Assassin",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_BeastMaster",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Berserker",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_CombatMaster",
+          "Faction/Traits/Marker:Marker_Specialization_Commander",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Destroyer",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Marksman",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Tank",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Tracker",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Trickster",
+          "Faction/Traits/Marker:Marker_OrcRarity_Common",
+          "Faction/Traits/Marker:ClassMarker_Olog",
+          "Faction/Traits/Marker:Marker_StatusEffect_Poison"
+        ]
+      },
+      {
+        "name": "DLC3ToMain_Architect",
+        "added_markers": [
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Assassin",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_BeastMaster",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Berserker",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_CombatMaster",
+          "Faction/Traits/Marker:Marker_Specialization_Commander",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Destroyer",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Marksman",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Tank",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Tracker",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Trickster",
+          "Faction/Traits/Marker:Marker_OrcRarity_Legendary",
+          "Faction/Traits/Marker:ClassMarker_Olog",
+          "Faction/Traits/Marker:Marker_StatusEffect_Poison",
+          "Faction/Traits/Marker:Marker_SpecialButterfly",
+          "Faction/Traits/Marker:Marker_Potential_VeryHigh",
+          "Faction/Traits/Marker:Marker_LearnSpeed_VeryFast",
+          "Faction/Traits/Marker:ET_CanRemove_MightyWarriors"
+        ]
+      },
+      {
+        "name": "DLC3ToMain_Slayer",
+        "added_markers": [
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Assassin",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_BeastMaster",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Berserker",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_CombatMaster",
+          "Faction/Traits/Marker:Marker_Specialization_Commander",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Destroyer",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Marksman",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Tank",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Tracker",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Trickster",
+          "Faction/Traits/Marker:Marker_OrcRarity_Legendary",
+          "Faction/Traits/Marker:ClassMarker_Hunter",
+          "Faction/Traits/Marker:Marker_SpecialButterfly",
+          "Faction/Traits/Marker:Marker_Potential_VeryHigh",
+          "Faction/Traits/Marker:Marker_LearnSpeed_VeryFast",
+          "Faction/Traits/Marker:ET_CanRemove_EliteGang"
+        ]
+      }
+    ],
+    "reward_grants": [
+      {
+        "name": "CommonOrc_ChampionCommander",
+        "added_markers": [
+          "Faction/Traits/Marker:Marker_Specialization_Commander",
+          "Faction/Traits/Marker:Marker_JustEarnedAdvancedClass"
+        ]
+      },
+      {
+        "name": "EpicOrc_ChampionCommander",
+        "added_markers": [
+          "Faction/Traits/Marker:Marker_Specialization_Commander",
+          "Faction/Traits/Marker:Marker_JustEarnedAdvancedClass"
+        ]
+      },
+      {
+        "name": "LT_EpicOrc_ChampionCommander",
+        "added_markers": [
+          "Faction/Traits/Marker:Marker_Specialization_Commander",
+          "Faction/Traits/Marker:Marker_JustEarnedAdvancedClass"
+        ]
+      },
+      {
+        "name": "LT_CommonOrc_ChampionCommander",
+        "added_markers": [
+          "Faction/Traits/Marker:Marker_Specialization_Commander",
+          "Faction/Traits/Marker:Marker_JustEarnedAdvancedClass"
+        ]
+      },
+      {
+        "name": "AdvancedClass_Commander",
+        "added_markers": [
+          "Faction/Traits/Marker:Marker_Specialization_Commander",
+          "Faction/Traits/Marker:Marker_JustEarnedAdvancedClass"
+        ]
+      },
+      {
+        "name": "Default_LegendOrc_ChampionCommander",
+        "added_markers": [
+          "Faction/Traits/Marker:Marker_Specialization_Commander",
+          "Faction/Traits/Marker:Marker_JustEarnedAdvancedClass"
+        ]
+      },
+      {
+        "name": "KillPlayer_EpicOrc_ChampionCommander",
+        "added_markers": [
+          "Faction/Traits/Marker:Marker_Specialization_Commander",
+          "Faction/Traits/Marker:Marker_JustEarnedAdvancedClass"
+        ]
+      },
+      {
+        "name": "Default_EpicOrc_ChampionCommander",
+        "added_markers": [
+          "Faction/Traits/Marker:Marker_Specialization_Commander",
+          "Faction/Traits/Marker:Marker_JustEarnedAdvancedClass"
+        ]
+      }
+    ],
+    "rule": "Known non-Commander advanced class with known preset outside direct preset exceptions; unknown/ambiguous context defers."
+  },
+  "necromancy": {
+    "abilities": [
+      "Raise_Dead",
+      "Necromancer_SelfRes"
+    ],
+    "eligibility_marker": "Marker_IsNecromancer",
+    "curse_marker": "Marker_StatusEffect_Curse",
+    "weapon_trait": "Curse_Weapon",
+    "skin_items": [
+      "orc_Cursed",
+      "olog_Cursed"
+    ],
+    "direct_roles": [
+      {
+        "name": "Role_Crafty",
+        "markers": [
+          "Faction/Traits/Marker:Marker_OrcRarity_Epic",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Assassin",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_BeastMaster",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Berserker",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_CombatMaster",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Commander",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Destroyer",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Marksman",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Tank",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Tracker",
+          "Faction/Traits/Marker:RoleMarker_SpecializationProb_Trickster",
+          "Faction/Traits/Marker:Marker_StatusEffect_Curse",
+          "Faction/Traits/Marker:Marker_IsNecromancer",
+          "Faction/Traits/Marker:ET_CanRemove_ChampionTrickster"
+        ],
+        "pickers": [
+          "Faction/Traits/Picker:Picker_OrcRarity_Epic",
+          "Faction/Traits/Picker:Picker_ET_ChampionTrickster",
+          "Faction/Traits/Picker:Picker_RaiseDead",
+          "Faction/Traits/Picker:Picker_Necromancer_SelfRes",
+          "Faction/Traits/Picker:Picker_Curse_Weapon"
+        ],
+        "items": [
+          "Inventory/Items:olog_Cursed",
+          "Inventory/Items:orc_Cursed",
+          "Inventory/Items:IT_Hair_Black_Tint",
+          "Inventory/Items:IT_Albino",
+          "Inventory/Items:orc_trickster_head_face"
+        ]
+      },
+      {
+        "name": "Role_Warlock",
+        "markers": [
+          "Faction/Traits/Marker:Marker_OrcRarity_Epic",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Assassin",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_BeastMaster",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Berserker",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_CombatMaster",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Commander",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Destroyer",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Marksman",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Tank",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Tracker",
+          "Faction/Traits/Marker:RoleMarker_SpecializationProb_Trickster",
+          "Faction/Traits/Marker:Marker_StatusEffect_Curse",
+          "Faction/Traits/Marker:Marker_IsNecromancer",
+          "Faction/Traits/Marker:ET_CanRemove_ChampionTrickster"
+        ],
+        "pickers": [
+          "Faction/Traits/Picker:Picker_OrcRarity_Epic",
+          "Faction/Traits/Picker:Picker_ET_ChampionTrickster",
+          "Faction/Traits/Picker:Picker_RaiseDead",
+          "Faction/Traits/Picker:Picker_Necromancer_SelfRes",
+          "Faction/Traits/Picker:Picker_Curse_Weapon"
+        ],
+        "items": [
+          "Inventory/Items:olog_Cursed",
+          "Inventory/Items:orc_Cursed",
+          "Inventory/Items:IT_Hair_Black_Tint",
+          "Inventory/Items:IT_Albino",
+          "Inventory/Items:orc_trickster_head_face"
+        ]
+      },
+      {
+        "name": "Role_Gravewalker",
+        "markers": [
+          "Faction/Traits/Marker:Marker_StatusEffect_Curse",
+          "Faction/Traits/Marker:RoleMarker_SpecializationProb_Assassin",
+          "Faction/Traits/Marker:RoleMarker_SpecializationProb_Trickster",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_BeastMaster",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Berserker",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_CombatMaster",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Commander",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Destroyer",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Marksman",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Tank",
+          "Faction/Traits/Marker:RoleMarker_SpecializationNever_Tracker",
+          "Faction/Traits/Marker:Marker_OrcRarity_Epic_Chance",
+          "Faction/Traits/Marker:Marker_IsNecromancer"
+        ],
+        "pickers": [
+          "Faction/Traits/Picker:Picker_Curse_Weapon",
+          "Faction/Traits/Picker:Picker_RaiseDead",
+          "Faction/Traits/Picker:Picker_Hate_Gravewalker",
+          "Faction/Traits/Picker:Picker_Necromancer_SelfRes"
+        ],
+        "items": [
+          "Inventory/Items:Gravewalker_Pants",
+          "Inventory/Items:RamSkull_Helmet",
+          "Inventory/Items:CrudeNecklace_Chest",
+          "Inventory/Items:Gravewalker_BodyPaint",
+          "Inventory/Items:Gravewalker_HeadPaint",
+          "Inventory/Items:IT_Orc_Body_Gravewalker_LOD",
+          "Inventory/Items:IT_DarkSkin",
+          "Inventory/Items:olog_Cursed",
+          "Inventory/Items:orc_Cursed",
+          "Inventory/Items:IT_Hair_Black_Tint",
+          "Inventory/Items:Ancient_Head"
+        ]
+      }
+    ],
+    "automatic_cheat_detection": false,
+    "reason": "Curse prerequisite data supports review diagnostics, but current stored/runtime inventory and special self-resurrection transition semantics are not verified. Gravewalker grants DarkSkin, not Albino; skin color must not be used as a binary prerequisite."
+  }
+}

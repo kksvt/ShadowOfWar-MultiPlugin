@@ -1,5 +1,10 @@
 #pragma once
 #include "sow_entities.hpp"
+#include "sow_defender_slots.hpp"
+#include "sow_defender_vulnerability_policy.hpp"
+#include "sow_defender_ability_policy.hpp"
+#include "sow_defender_provenance.hpp"
+#include "sow_defender_actor_policy.hpp"
 #include "sow_defender_blacklist.hpp"
 #include "sow_defender_trait_policy.hpp"
 #include "sow_defender_class_policy.hpp"
@@ -53,12 +58,26 @@ inline std::mutex stateMutex;
 inline thread_local Address traceBindingActor=0,traceBindingMember=0;
 inline void(*onFlaggedBound)(Address,Address)=nullptr;
 inline void(*beforeRosterRepair)(Address)=nullptr;
+inline void(*onFormattedMember)(Address)=nullptr; // Read-only export observer; independent of console diagnostics.
+inline void(*beforeImportedRepair)(Address)=nullptr; // Called with stateMutex held.
 inline std::uint64_t trampoline=0;
 inline thread_local bool handling=false;
 inline ULONGLONG lastBatch=0;
 inline Address lastBatchKey=0;
+struct DiagnosticStamp {Address member;std::array<Address,3> identity;std::string event,trait;ULONGLONG time;};
+inline std::mutex diagnosticMutex;
+inline std::vector<DiagnosticStamp> diagnosticStamps;
+inline bool ShouldLog(Address member,const char* event,const char* trait,ULONGLONG now){
+    const auto token=At<std::array<Address,3>>(member,0x168);
+    std::lock_guard<std::mutex> lock(diagnosticMutex);
+    for(auto& stamp:diagnosticStamps)if(stamp.member==member && stamp.identity==token.value && stamp.event==event && stamp.trait==trait){
+        if(now>=stamp.time && now-stamp.time<30000)return false;stamp.time=now;return true;
+    }
+    if(diagnosticStamps.size()>=2048)diagnosticStamps.erase(diagnosticStamps.begin());
+    diagnosticStamps.push_back({member,token.value,event,trait,now});return true;
+}
 inline void Log(const char* event,Address member,const char* trait="",bool /*summary*/=false) {
-    if(!config.diagnostics)return;
+    if(!config.diagnostics || !ShouldLog(member,event,trait,GetTickCount64()))return;
     char out[512]{};
     std::snprintf(out,sizeof(out),"[DefenderRepair] %s member=%p trait=%s\n",event,reinterpret_cast<void*>(member),trait);
     OutputDebugStringA(out);
@@ -70,7 +89,9 @@ template<std::size_t N> inline bool Matches(const Record& r,const char* const (&
 }
 inline bool Blacklisted(const Record& r) {return Matches(r,blacklistedTraits);}
 inline bool InvalidTribe(const Record& r){
-    return Matches(r,structuralTribes);
+    // A corrupt/unnamed record is unknown. Every other named tribe must be in
+    // the exact stock allowlist; a missing pointer is handled by Normalize.
+    return r.nameComplete && r.name[0] && !Matches(r,allowedDefenderTribes);
 }
 struct List {std::array<Address,512> values{};std::size_t size=0;bool valid=false;};
 inline unsigned EpicCount(const List& list);
@@ -87,6 +108,16 @@ inline List Traits(Address member,Address listOffset=0x198) {
     }
     const auto b=At<Address>(member,listOffset),e=At<Address>(member,listOffset+8);
     list.valid=b.readable && e.readable && b.value==begin.value && e.value==end.value;
+    return list;
+}
+inline List PolicyTraits(Address member){
+    auto list=Traits(member);if(!list.valid || !defender_slots::erase)return list;
+    const auto slots=defender_slots::ReadSlots(member);if(!slots.valid){list.valid=false;return list;}
+    for(std::size_t i=0;i<slots.size;++i)for(const auto trait:{slots.slots[i].trait}){
+        if(!trait)continue;if(!ReadRecord(trait).nameComplete){list.valid=false;return list;}
+        bool present=false;for(std::size_t j=0;j<list.size;++j)present|=list.values[j]==trait;
+        if(!present){if(list.size==list.values.size()){list.valid=false;return list;}list.values[list.size++]=trait;}
+    }
     return list;
 }
 inline const char* ScopeReason(Address member) {
@@ -108,14 +139,11 @@ inline const char* ScopeReason(Address member) {
 }
 inline const char* SkipReason(Address member) {
     if(const auto* reason=ScopeReason(member))return reason;
-    // Exact humanoid compatibility for stored-trait cleanup, not a declaration
-    // that every class here is a legitimate generated captain. The oversized
-    // debug Orc remains a structural finding and is never model-converted here.
-    static constexpr const char* classes[]={"Orc_Defender_Tough","Orc_Infantry","Orc_Infantry_Tough","Orc_Spearman","Orc_Archer","Orc_Archer_Tough",
-        "Orc_Berserker","Orc_Berserker_Tough","Orc_Defender","OlogHai_Infantry"};
+    // Shared stock class table; normalization runs separately before stored
+    // cleanup. This predicate itself never converts a model.
     const auto cls=At<Address>(member,0x278);const auto record=ReadRecord(cls.value);
     if(!cls.readable || !record.nameComplete)return "class-unreadable-or-unnamed";
-    return Matches(record,classes)?nullptr:"unsupported-class";
+    return StandardClass(record)?nullptr:"unsupported-class";
 }
 inline bool Eligible(Address member) {return SkipReason(member)==nullptr;}
 struct StructuralField {const char* field;Record record;bool readable;bool incompatible;bool nullRecord;};
@@ -132,8 +160,9 @@ inline std::array<StructuralField,7> InspectStructure(Address member) {
         f.nullRecord=baseKnown && ptr.readable && !ptr.value;
         f.readable=baseKnown && ptr.readable && ptr.value && f.record.nameComplete;
         if(!f.readable)continue;
-        if(i==0)f.incompatible=Matches(f.record,structuralClasses);
-        else if(i==1)f.incompatible=Matches(f.record,structuralAI);
+        if(i==0)f.incompatible=!StandardClass(f.record);
+        else if(i==1){const auto model=ReadRecord(At<Address>(member,0x278).value);const auto pair=StandardClass(model);
+            f.incompatible=pair?!f.record.Named(pair->ai):!StandardAI(f.record);}
         else if(i==2)f.incompatible=Matches(f.record,structuralRoles);
         else if(i==6)f.incompatible=InvalidTribe(f.record);
         else f.incompatible=Matches(f.record,structuralVisuals);
@@ -163,8 +192,11 @@ inline void LogMemberList(Address member,const char* kind,const List& list,std::
         WriteDiagnostic(line);
     }
 }
-inline void LogMember(Address member,const char* reason,bool /*transition*/=false) {
+inline void LogMember(Address member,const char* reason,bool transition=false) {
     if(!config.diagnostics)return;
+    // Full traits/markers/structure live in JSONL, not synchronous console loops.
+    if(!transition){Log(reason,member);return;}
+    if(!ShouldLog(member,reason,"member-summary",GetTickCount64()))return;
     const auto snapshot=memberDumpSequence.fetch_add(1,std::memory_order_relaxed)+1;
     const auto cls=ReadRecord(At<Address>(member,0x278).value);
     const auto role=ReadRecord(At<Address>(member,0x318).value);
@@ -184,22 +216,7 @@ inline void LogMember(Address member,const char* reason,bool /*transition*/=fals
         cls.nameComplete?cls.name.data():"<unknown>",role.nameComplete?role.name.data():"<unknown>",
         row.nameComplete?row.name.data():"<unknown>",blocked,EpicCount(list),awe,fearless,static_cast<unsigned long long>(snapshot));
     WriteDiagnostic(out);
-    // Include unflagged/skipped observed members too. Preview and bind-before /
-    // bind-after snapshots retain phase and identity in the member-detail line.
-    // Native vectors are read through the same bounded, stability-checked reader;
-    // an unreadable list is never reported as an empty list.
-    LogMemberList(member,"traits",list,snapshot);
-    LogMemberList(member,"markers",Traits(member,0x1B0),snapshot);
-    // Unsupported classes still reach structural inspection. No findings are
-    // promoted to trait-repair eligibility or used to mutate live actors.
-    if(!ScopeReason(member))for(const auto& field:InspectStructure(member)){
-        char line[512]{};
-        std::snprintf(line,sizeof(line),"[DefenderStructure] snapshot=%llu member=%p field=%s record=%p name=%s status=%s action=observation-only\n",
-            static_cast<unsigned long long>(snapshot),reinterpret_cast<void*>(member),field.field,
-            reinterpret_cast<void*>(field.record.address),field.readable?field.record.name.data():"<unknown>",
-            !field.readable?(field.nullRecord?"null-record":"unreadable-or-unnamed"):field.incompatible?"known-incompatible":"no-listed-signal");
-        WriteDiagnostic(line);
-    }
+
 }
 
 inline Address LookupTrait(Address exemplar,const char* name) {
@@ -259,6 +276,78 @@ inline bool Has(const List& list,Address trait) {
     for(std::size_t i=0;i<list.size && list.valid;++i)if(list.values[i]==trait)return true;
     return false;
 }
+// Native active deactivation followed by persistent picker removal. Tests may
+// leave slot helpers unset to exercise the legacy active-only operation.
+inline bool RemoveStoredTrait(Address member,Address trait){
+    if(!removeTrait || !Eligible(member))return false;
+    if(defender_slots::erase && (!defender_slots::ReadSlots(member).valid || !defender_slots::Editable(member)))return false;
+    const auto before=Traits(member);if(!before.valid)return false;
+    if(Has(before,trait) && !removeTrait(member,trait))return false;
+    const auto after=Traits(member);if(!after.valid || Has(after,trait))return false;
+    return !defender_slots::erase || defender_slots::EraseTraitSlots(member,trait);
+}
+inline bool ReconcileBaseSlot(Address member){
+    if(!Eligible(member) || !lookupTrait || !defender_slots::add || !defender_slots::update || !defender_slots::Editable(member))return false;
+    auto slots=defender_slots::ReadSlots(member);const auto* name=defender_slots::BasePicker(ReadRecord(At<Address>(member,0x278).value));
+    if(!slots.valid || !slots.size || !name)return false;
+    Address exemplar=0;for(std::size_t i=0;i<slots.size;++i)if(ReadRecord(slots.slots[i].picker).nameComplete){exemplar=slots.slots[i].picker;break;}
+    const auto wanted=lookupTrait(exemplar,name);if(!ReadRecord(wanted).Named(name))return false;
+    bool found=false;for(std::size_t i=0;i<slots.size;++i)found|=slots.slots[i].picker==wanted;
+    // Add first: a failed native admission must not strip the old class bonus.
+    if(!found){
+        if(slots.size>=512 || !defender_slots::add(member,wanted))return false;
+        slots=defender_slots::ReadSlots(member);if(!slots.valid)return false;
+        found=false;for(std::size_t i=0;i<slots.size;++i)found|=slots.slots[i].picker==wanted;
+        if(!found)return false;
+    }
+    bool kept=false;
+    for(std::size_t i=slots.size;i>0;--i){const auto& slot=slots.slots[i-1];
+        if(!defender_slots::IsBasePicker(ReadRecord(slot.picker)))continue;
+        if(slot.picker==wanted && !kept){kept=true;continue;}
+        const auto traits=Traits(member);if(!traits.valid)return false;
+        if(slot.trait && Has(traits,slot.trait) && (!removeTrait || !removeTrait(member,slot.trait)))return false;
+        if(!defender_slots::Erase(member,static_cast<unsigned>(i-1)))return false;
+    }
+    if(!Eligible(member))return false;
+    defender_slots::update(member,0);
+    const auto after=defender_slots::ReadSlots(member);unsigned bases=0;bool correct=false;
+    for(std::size_t i=0;after.valid && i<after.size;++i)if(defender_slots::IsBasePicker(ReadRecord(after.slots[i].picker))){
+        ++bases;correct=after.slots[i].picker==wanted && after.slots[i].trait && Has(Traits(member),after.slots[i].trait);}
+    return after.valid && bases==1 && correct;
+}
+inline bool PreserveResolvedSlot(Address member,Address awe,Address picker,std::int16_t option){
+    if(!defender_slots::push)return true;
+    if(!Eligible(member) || !defender_slots::Editable(member) || !ReadRecord(picker).nameComplete)return false;
+    auto slots=defender_slots::ReadSlots(member);if(!slots.valid)return false;
+    // A zero gate word makes the native resolver retain the cached trait for
+    // every rebuild reason. This cache is deliberately not a save-file claim.
+    bool kept=false;
+    for(std::size_t i=slots.size;i>0;--i){const auto& slot=slots.slots[i-1];if(slot.picker!=picker)continue;
+        if(!kept && slot.trait==awe && slot.flags==0 && slot.option==option && !slot.unlocked){kept=true;continue;}
+        if(slot.trait && slot.trait!=awe){const auto active=Traits(member);
+            if(!active.valid || (Has(active,slot.trait) && (!removeTrait || !removeTrait(member,slot.trait))))return false;}
+        if(!defender_slots::Erase(member,static_cast<unsigned>(i-1)))return false;
+    }
+    if(kept)return true;
+    const auto before=defender_slots::ReadSlots(member);if(!before.valid || before.size>=512)return false;
+    const defender_slots::Slot forced{picker,awe,0,0,option,0};
+    if(!defender_slots::push(member+0x1E0,&forced))return false;
+    const auto after=defender_slots::ReadSlots(member);
+    return after.valid && after.size==before.size+1 && after.slots[after.size-1].picker==picker &&
+        after.slots[after.size-1].trait==awe && after.slots[after.size-1].flags==0;
+}
+inline bool PreserveTraitSlot(Address member,Address awe,const char* pickerName,std::int16_t option){
+    if(!defender_slots::push)return true;
+    if(!lookupTrait || !Eligible(member) || !defender_slots::Editable(member))return false;
+    auto slots=defender_slots::ReadSlots(member);if(!slots.valid || !slots.size)return false;
+    Address exemplar=0;for(std::size_t i=0;i<slots.size;++i)
+        if(ReadRecord(slots.slots[i].picker).nameComplete){exemplar=slots.slots[i].picker;break;}
+    if(!exemplar)return false;
+    const auto picker=lookupTrait(exemplar,pickerName);if(!ReadRecord(picker).Named(pickerName))return false;
+    return PreserveResolvedSlot(member,awe,picker,option);
+}
+
+inline bool PreserveAweSlot(Address member,Address awe){return PreserveTraitSlot(member,awe,"Picker_Terror_Player",2);}
 inline unsigned EpicCount(const List& list) {
     unsigned count=0;
     for(std::size_t i=0;i<list.size && list.valid;++i){
@@ -294,14 +383,15 @@ inline void ApplyAwe(Address member,Address exemplar) {
     std::vector<Address> removed;
     for(auto p:plan){
         if(!Eligible(member))return;
-        const bool ok=removeTrait(member,p);const auto now=Traits(member);
+        const bool ok=RemoveStoredTrait(member,p);const auto now=Traits(member);
         if(!ok || !now.valid || Has(now,p)){Log("planned replacement removal unconfirmed; stopped",member,ReadRecord(p).name.data(),true);return;}
         removed.push_back(p);Log("replaced trait for awe",member,ReadRecord(p).name.data(),true);
     }
-    if(already){Log("awe already present",member,"Terror_Player",true);return;}
+    if(already){if(!PreserveAweSlot(member,awe))Log("awe active; rebuild cache unconfirmed",member,"Terror_Player",true);return;}
     const auto before=Traits(member);if(!before.valid || !Eligible(member))return;
     const bool added=addTrait(member,awe);const auto after=Traits(member);
     if(added && after.valid && Has(after,awe)){
+        Log(PreserveAweSlot(member,awe)?"awe rebuild cache verified":"awe active; rebuild cache unconfirmed",member,"Terror_Player",true);
         bool retained=true;for(std::size_t i=0;i<before.size;++i)retained&=Has(after,before.values[i]);
         Log(retained?"awe added-native; other traits retained":"awe added; unexpected trait loss",member,"Terror_Player",true);
         if(!retained){config.enabled=false;Log("repair disabled after unexpected trait loss",member,"",true);}
@@ -345,7 +435,17 @@ inline ClassContext ReadClassContext(Address member) {
     ctx.presetKnown=preset.readable && (!preset.value || ctx.preset.nameComplete);
     return ctx;
 }
+inline defender_ability_policy::NecromancyState ReadNecromancy(Address member,const List& traits){
+    defender_ability_policy::NecromancyState state;state.traitsKnown=traits.valid;
+    if(traits.valid)for(std::size_t i=0;i<traits.size;++i){const auto r=ReadRecord(traits.values[i]);
+        state.raiseDead|=r.Named("Raise_Dead");state.selfResurrection|=r.Named("Necromancer_SelfRes");state.curseWeapon|=r.Named("Curse_Weapon");}
+    const auto markers=Traits(member,0x1B0);state.markersKnown=markers.valid;
+    if(markers.valid)for(std::size_t i=0;i<markers.size;++i){const auto r=ReadRecord(markers.values[i]);
+        state.necromancerMarker|=r.Named("Marker_IsNecromancer");state.curseMarker|=r.Named("Marker_StatusEffect_Curse");}
+    return state;
+}
 inline bool InvalidClassTrait(const Record& trait,const ClassContext& ctx) {
+    if(defender_ability_policy::InvalidReinforcements(trait,ctx.specialization,ctx.preset,ctx.presetKnown))return true;
     if(!ctx.specialization || !ctx.presetKnown)return false;
     if(trait.Named("Quirk_NoLastChance"))return ctx.roleKnown &&
         std::strcmp(ctx.specialization,"Marker_Specialization_Assassin")!=0 &&
@@ -374,13 +474,13 @@ inline bool OffClassTrait(const Record& trait,const ClassContext& ctx) {
 }
 inline void CleanOffClassTraits(Address member) {
     if(!Eligible(member))return;
-    const auto traits=Traits(member);const auto ctx=ReadClassContext(member);
+    const auto traits=PolicyTraits(member);const auto ctx=ReadClassContext(member);
     if(!traits.valid || !ctx.specialization){Log("off-class cleanup skipped; incomplete or ambiguous context",member,"",true);return;}
     for(std::size_t i=0;i<traits.size;++i){
         const auto record=ReadRecord(traits.values[i]);
         if(!OffClassTrait(record,ctx))continue;
         if(!Eligible(member))return;
-        const bool removed=removeTrait(member,traits.values[i]);const auto after=Traits(member);
+        const bool removed=RemoveStoredTrait(member,traits.values[i]);const auto after=Traits(member);
         Log(removed && after.valid && !Has(after,traits.values[i])?"removed off-class trait on flagged defender":"off-class removal unconfirmed",
             member,record.name.data(),true);
         if(!removed || !after.valid || Has(after,traits.values[i]))return;
@@ -388,10 +488,10 @@ inline void CleanOffClassTraits(Address member) {
 }
 inline void CleanInspiringPresence(Address member) {
     if(!config.forceTerrorPlayer || !Eligible(member))return;
-    const auto list=Traits(member);if(!list.valid)return;
+    const auto list=PolicyTraits(member);if(!list.valid)return;
     for(std::size_t i=0;i<list.size;++i){
         if(!ReadRecord(list.values[i]).Named("Quirk_InspiringPresence"))continue;
-        const bool removed=removeTrait(member,list.values[i]);
+        const bool removed=RemoveStoredTrait(member,list.values[i]);
         const auto after=Traits(member);
         Log(removed && after.valid && !Has(after,list.values[i])?
             "removed inspiring presence on flagged defender":"inspiring presence removal unconfirmed",
@@ -399,9 +499,92 @@ inline void CleanInspiringPresence(Address member) {
         return;
     }
 }
+// Retry conversion requests after a successful immunity removal but failed
+// activation/cache insertion. All state is per-session and identity checked.
+struct VulnerabilityIntent {Mark token;unsigned wanted=0;std::array<Address,8> pickers{};};
+inline std::vector<VulnerabilityIntent> vulnerabilityIntents;
+inline void RememberDiagnosis(Address member,unsigned mask);
+inline void WeakenImmunities(Address member,Address exemplar,unsigned restoredMask=0,const defender_provenance::Key* provenance=nullptr){
+    namespace vp=defender_vulnerability_policy;
+    if(!config.enabled || !config.forceTerrorPlayer || !Eligible(member) || !lookupTrait || !addTrait || !hasCapacity ||
+       !defender_slots::erase || !defender_slots::push || !defender_slots::Editable(member))return;
+    const auto identity=At<std::array<Address,3>>(member,0x168);const auto traits=PolicyTraits(member);
+    if(!identity.readable || !traits.valid)return;
+    const Mark token{member,identity.value[2],identity.value[0],identity.value[1]};
+    const auto same=[&](){const auto now=At<std::array<Address,3>>(member,0x168);
+        return config.enabled && config.forceTerrorPlayer && Eligible(member) && now.readable && now.value==identity.value;};
+    for(std::size_t t=0;t<traits.size;++t)if(vp::FindRemovalOnlyAlias(ReadRecord(traits.values[t]))){
+        if(!RemoveStoredTrait(member,traits.values[t])){Log("nonstandard immunity removal unconfirmed",member,ReadRecord(traits.values[t]).name.data());return;}
+        if(!same())return;
+        Log("nonstandard immunity removed; no mortal counterpart",member,ReadRecord(traits.values[t]).name.data());
+    }
+    unsigned wanted=0;
+    if(restoredMask&63){
+        unsigned activeMask=0,cachedMask=0;const auto active=Traits(member);const auto slots=defender_slots::ReadSlots(member);
+        if(!active.valid || !slots.valid)return;
+        for(std::size_t n=0;n<active.size;++n){const auto r=ReadRecord(active.values[n]);
+            for(unsigned i=0;i<6;++i)if(r.Named(vp::families[i].mortal))activeMask|=1u<<i;}
+        for(std::size_t n=0;n<slots.size;++n)if(!slots.slots[n].flags){const auto r=ReadRecord(slots.slots[n].trait);
+            for(unsigned i=0;i<6;++i)if(r.Named(vp::families[i].mortal))cachedMask|=1u<<i;}
+        wanted=(restoredMask&63)&~(activeMask&cachedMask);
+    }
+    for(std::size_t t=0;t<traits.size;++t){const auto r=ReadRecord(traits.values[t]);
+        for(unsigned i=0;i<std::size(vp::families);++i)if(r.Named(vp::families[i].immunity))wanted|=1u<<i;}
+    if(wanted){if(provenance){if(provenance->valid)defender_provenance::Remember(*provenance,wanted);}else RememberDiagnosis(member,wanted);}
+    VulnerabilityIntent* intent=nullptr;
+    for(auto& entry:vulnerabilityIntents)if(entry.token.member==member && entry.token.key==token.key &&
+        entry.token.seed==token.seed && entry.token.identity==token.identity){intent=&entry;break;}
+    if(!intent){
+        if(!wanted)return;
+        if(vulnerabilityIntents.size()>=512){Log("immunity conversion deferred; retry registry full",member);return;}
+        vulnerabilityIntents.push_back({token,wanted,{}});intent=&vulnerabilityIntents.back();
+    }else intent->wanted|=wanted;
+    for(unsigned i=0;i<std::size(vp::families);++i){
+        if(!(intent->wanted&(1u<<i)))continue;const auto& family=vp::families[i];
+        const auto now=At<std::array<Address,3>>(member,0x168);
+        if(!Eligible(member) || !now.readable || now.value!=identity.value)return;
+        Address destination=0,picker=intent->pickers[i];
+        if(family.mortal){
+            if(picker && !ReadRecord(picker).Named(family.picker))picker=0;
+            destination=lookupTrait(exemplar,family.mortal);
+            const auto slots=defender_slots::ReadSlots(member);if(!slots.valid)return;
+            for(std::size_t n=0;n<slots.size && !picker;++n)if(ReadRecord(slots.slots[n].picker).nameComplete)
+                picker=lookupTrait(slots.slots[n].picker,family.picker);
+            if(!ReadRecord(destination).Named(family.mortal) || !ReadRecord(picker).Named(family.picker)){
+                Log("immunity conversion deferred; replacement lookup unavailable",member,family.immunity);continue;}
+            intent->pickers[i]=picker;
+        }
+        const auto current=PolicyTraits(member);if(!current.valid)return;
+        bool removed=true;
+        for(std::size_t n=0;n<current.size;++n)if(ReadRecord(current.values[n]).Named(family.immunity))
+            if(!RemoveStoredTrait(member,current.values[n])){removed=false;break;}
+        if(!removed){Log("immunity source removal unconfirmed; retry retained",member,family.immunity);continue;}
+        if(!same())return;
+        if(!family.mortal){intent->wanted&=~(1u<<i);Log("immunity removed; no shipped mortal counterpart",member,family.immunity);continue;}
+        const auto active=Traits(member);if(!active.valid)return;
+        if(!Has(active,destination)){
+            if(!hasCapacity(member,destination,{}) || !addTrait(member,destination) || !Has(Traits(member),destination)){
+                Log("mortal vulnerability activation unconfirmed; retry retained",member,family.mortal);continue;}
+        }
+        if(!same())return;
+        if(!PreserveResolvedSlot(member,destination,picker,family.option)){
+            Log("mortal vulnerability active; rebuild cache unconfirmed; retry retained",member,family.mortal);continue;}
+        intent->wanted&=~(1u<<i);Log("immunity replaced with cached mortal vulnerability",member,family.mortal);
+    }
+    vulnerabilityIntents.erase(std::remove_if(vulnerabilityIntents.begin(),vulnerabilityIntents.end(),
+        [](const VulnerabilityIntent& entry){return !entry.wanted;}),vulnerabilityIntents.end());
+}
+inline void RememberDiagnosis(Address member,unsigned mask=0){
+    if(!defender_provenance::enabled || ScopeReason(member))return;
+    const auto key=defender_provenance::ReadKey(image,member);if(key.valid)defender_provenance::Remember(key,mask);
+}
+inline bool PriorDiagnosis(Address member,unsigned* mask=nullptr){
+    if(!defender_provenance::enabled)return false;
+    return defender_provenance::Lookup(defender_provenance::ReadKey(image,member),mask);
+}
 inline void Repair(Address member) {
     if(!config.enabled || !removeTrait || !Eligible(member))return;
-    const auto before=Traits(member);
+    const auto before=PolicyTraits(member);
     if(!before.valid){LogMember(member,"trait-list-unreadable-or-invalid");return;}
     const auto identity=At<Address>(member,0x170),key=At<Address>(member,0x178);
     const auto seed=At<Address>(member,0x168);
@@ -413,12 +596,22 @@ inline void Repair(Address member) {
         flagged=true;exemplar=mismatch;Log("flagged; class/title trait mismatch",member,ReadRecord(mismatch).name.data(),true);
     }
     const auto classContext=ReadClassContext(member);
+    if(config.diagnostics){bool necromancy=false;
+        for(std::size_t i=0;i<before.size;++i)necromancy|=defender_ability_policy::NecromancyTrait(ReadRecord(before.values[i]));
+        if(necromancy){const auto review=defender_ability_policy::ReviewNecromancy(ReadNecromancy(member,before));
+            if(const auto* why=defender_ability_policy::ReviewReason(review))Log(why,member,"necromancy observation only");}}
+
     for(std::size_t i=0;i<before.size;++i)if(UnresolvedSlayerFrost(ReadRecord(before.values[i]),classContext)){
         Log("review only; Slayer frost immunity; shipped CMT acquisition path unresolved",member,"Immune_Frost",true);break;
     }
     bool remembered=false;
     for(const auto& m:marked)if(m.member==member && m.key==key.value && m.seed==seed.value && m.identity==identity.value)remembered=true;
+    const auto provenanceKey=defender_provenance::enabled?defender_provenance::ReadKey(image,member):defender_provenance::Key{};
+    unsigned restoredMask=0;const bool prior=defender_provenance::Lookup(provenanceKey,&restoredMask);
+    if(prior && !remembered){remembered=true;if(marked.size()<512)marked.push_back({member,key.value,seed.value,identity.value});
+        Log("restored diagnosed member from invasion-scoped provenance",member);}
     if(flagged && !remembered && marked.size()<512)marked.push_back({member,key.value,seed.value,identity.value});
+    if((flagged || remembered) && provenanceKey.valid)defender_provenance::Remember(provenanceKey);
     if(!exemplar && before.size)exemplar=before.values[0];
     for(std::size_t i=0;i<before.size;++i){
         const auto trait=before.values[i];const auto record=ReadRecord(trait);
@@ -427,17 +620,20 @@ inline void Repair(Address member) {
         if(!nowIdentity.readable || !nowKey.readable || nowIdentity.value!=identity.value ||
            nowKey.value!=key.value || !Eligible(member))return;
         const auto current=Traits(member);if(!current.valid)return;
-        bool present=false;for(std::size_t n=0;n<current.size;++n)present|=current.values[n]==trait;
-        if(!present)continue;
         // Native 353454 erases the trait and handles inventory/item cleanup.
         // No direct vector edits, remote calls, or worker-thread game calls.
-        const bool result=removeTrait(member,trait);
+        const bool result=RemoveStoredTrait(member,trait);
         const auto after=Traits(member);bool remains=false;
         for(std::size_t n=0;n<after.size && after.valid;++n)remains|=after.values[n]==trait;
-        Log(result && after.valid && !remains?"removed-native; unspawned":"removal-unconfirmed",member,record.name.data());
+        Log(result && after.valid && !remains?"removed-native; unspawned; picker sources erased":"removal-unconfirmed",member,record.name.data());
         if(!result || !after.valid || remains)return;
     }
-    if(flagged || remembered){CleanOffClassTraits(member);CleanInspiringPresence(member);ApplyAwe(member,exemplar);}
+    if(flagged || remembered){
+        if(config.forceTerrorPlayer){const auto stored=PolicyTraits(member);
+            for(std::size_t i=0;stored.valid && i<stored.size;++i)if(ReadRecord(stored.values[i]).Named("Quirk_Fearless") && !Has(Traits(member),stored.values[i]))
+                if(!RemoveStoredTrait(member,stored.values[i])){Log("Fearless source removal unconfirmed",member);return;}}
+        CleanOffClassTraits(member);CleanInspiringPresence(member);ApplyAwe(member,exemplar);WeakenImmunities(member,exemplar,restoredMask,&provenanceKey);
+    }
 }
 inline void RepairFaction(Address seed) {
     if(!config.enabled || !removeTrait || ScopeReason(seed))return;
@@ -502,6 +698,7 @@ inline void ObserveThreat(Address member,Address actor) {
        !owner.readable || !owner.value || !tag.readable || owner.value!=tag.value)return;
     bool flagged=false;
     for(const auto& m:marked)if(m.member==member && m.key==key.value && m.seed==seed.value && m.identity==identity.value)flagged=true;
+    if(!flagged)flagged=PriorDiagnosis(member);
     if(!flagged){const auto list=Traits(member);if(!list.valid)return;
         flagged=EpicCount(list)>3;
         flagged|=ClassMismatch(member,list)!=0;
@@ -550,10 +747,14 @@ inline void AutomaticRepair(Address member,ULONGLONG now) {
     // A different imported roster is not delayed by the previous fort's timer.
     if(lastBatch && lastBatchKey==key.value && now>=lastBatch && now-lastBatch<1500)return;
     if(!AutomaticSeedReady(member))return;
+    if(beforeImportedRepair)beforeImportedRepair(member);
     ArmForSpawn(member);
     lastBatch=now;lastBatchKey=key.value;
     Log("automatic imported roster pass",member);
+    const auto repairStart=GetTickCount64();
     RepairFaction(member);
+    const auto elapsed=GetTickCount64()-repairStart;
+    if(elapsed>=10){char timing[100]{};std::snprintf(timing,sizeof(timing),"roster pass elapsedMs=%llu",static_cast<unsigned long long>(elapsed));Log(timing,member);}
 }
 inline Address __fastcall Spawn(Address actor,Address member,bool initialize) {
     bool observed=false,track=false,traceFlagged=false;
@@ -596,6 +797,7 @@ inline Address __fastcall Spawn(Address actor,Address member,bool initialize) {
 }
 
 inline Address __fastcall Format(Address member,Address properties,bool flag) {
+    if(!handling && onFormattedMember)onFormattedMember(member);
     // The formatter also runs during loading. Only complete, owned, unspawned
     // imported invasion members may trigger a pass; no keyboard polling needed.
     std::unique_lock<std::mutex> lock(stateMutex,std::defer_lock);
@@ -610,9 +812,22 @@ template<std::size_t N> inline bool Signature(Address address,const unsigned cha
     for(std::size_t i=0;i<N;++i){const auto b=Read<unsigned char>(address+i);if(!b.readable || b.value!=bytes[i])return false;}
     return true;
 }
+inline bool StartProvenance(){
+    static constexpr unsigned char context[]={0x48,0x83,0xEC,0x28,0x48,0x8B,0x05,0xF1,0x06,0xE7,0,0x48,0x8B,0x88,0x30,0x6D,0,0};
+    static constexpr unsigned char launch[]={0x40,0x55,0x53,0x56,0x57,0x41,0x56,0x48,0x8B,0xEC,0x48,0x83,0xEC,0x70,0x48,0x8B,0xD9};
+    defender_provenance::contextVerified=Signature(image+0x188F3AC,context) && Signature(image+0x1B39EE8,launch);
+    if(!defender_provenance::contextVerified)return false;
+    wchar_t base[MAX_PATH]{};auto count=GetEnvironmentVariableW(L"LOCALAPPDATA",base,MAX_PATH);
+    if(!count || count>=MAX_PATH)return false;
+    std::wstring dir(base);dir+=L"\\SoWPlugin";
+    if(!CreateDirectoryW(dir.c_str(),nullptr) && GetLastError()!=ERROR_ALREADY_EXISTS)return false;
+    dir+=L"\\RepairState";if(!CreateDirectoryW(dir.c_str(),nullptr) && GetLastError()!=ERROR_ALREADY_EXISTS)return false;
+    return defender_provenance::Init(dir+L"\\provenance-v1.tsv");
+}
 inline bool Install(Config settings={}) {
     if(hook || spawnHook){Log("install rejected; hook already exists",0);return false;}
-    config=settings;lastBatch=0;lastBatchKey=0;marked.clear();armedFaction.clear();
+    {std::lock_guard<std::mutex> lock(diagnosticMutex);diagnosticStamps.clear();}
+    config=settings;lastBatch=0;lastBatchKey=0;marked.clear();vulnerabilityIntents.clear();armedFaction.clear();
     StoreThreats(std::make_shared<const std::vector<Threat>>());
     if(!config.enabled){Log("disabled by configuration; no hook installed",0);return true;}
     image=reinterpret_cast<Address>(GetModuleHandleW(nullptr));
@@ -620,7 +835,19 @@ inline bool Install(Config settings={}) {
     static constexpr unsigned char remover[]={0x48,0x89,0x5c,0x24,0x10,0x55,0x56,0x57,0x48,0x8b,0xec,0x48,0x83,0xec,0x50};
     if(!Signature(image+0x10BD90,formatter)){Log("install failed; formatter signature mismatch",0);return false;}
     if(!Signature(image+0x353454,remover)){Log("install failed; remover signature mismatch",0);return false;}
-    if(config.forceTerrorPlayer){
+    static constexpr unsigned char slotErase[]={0x48,0x89,0x5C,0x24,0x08,0x48,0x89,0x74,0x24,0x10,0x48,0x89,0x7C,0x24,0x18};
+    static constexpr unsigned char slotPush[]={0x48,0x8B,0xC4,0x48,0x89,0x58,0x08,0x48,0x89,0x68,0x10,0x48,0x89,0x70,0x18};
+    static constexpr unsigned char slotAdd[]={0x48,0x89,0x5C,0x24,0x08,0x57,0x48,0x83,0xEC,0x40};
+    if(!Signature(image+0x7A7378,slotErase) || !Signature(image+0x7CD0CC,slotPush) || !Signature(image+0x7CD03C,slotAdd)){
+        Log("install failed; picker helper signature mismatch",0);return false;
+    }
+    static constexpr unsigned char update[]={0x40,0x53,0x48,0x83,0xEC,0x20,0x48,0x8B,0xD9};
+    if(!Signature(image+0x3528A0,update)){Log("install failed; trait rebuild signature mismatch",0);return false;}
+    defender_slots::update=reinterpret_cast<defender_slots::UpdateFn>(image+0x3528A0);
+    defender_slots::erase=reinterpret_cast<defender_slots::EraseFn>(image+0x7A7378);
+    defender_slots::push=reinterpret_cast<defender_slots::PushFn>(image+0x7CD0CC);
+    defender_slots::add=reinterpret_cast<defender_slots::AddFn>(image+0x7CD03C);
+    { // Lookup/add helpers also serve base-class slot reconciliation.
         static constexpr unsigned char add[]={0x48,0x89,0x5c,0x24,0x08,0x48,0x89,0x74,0x24,0x18,0x48,0x89,0x54,0x24,0x10};
         static constexpr unsigned char count[]={0x48,0x83,0xec,0x28,0x4c,0x8b,0xc1,0xe8,0x74,0x11,0,0};
         static constexpr unsigned char attr[]={0x48,0x89,0x5c,0x24,0x08,0x48,0x89,0x6c,0x24,0x10,0x48,0x89,0x74,0x24,0x18,0x57};
@@ -637,16 +864,20 @@ inline bool Install(Config settings={}) {
         Log("install failed; actor binding signature mismatch",0);return false;
     }
     removeTrait=reinterpret_cast<RemoveFn>(image+0x353454);
+    try{if(!StartProvenance())Log("reload provenance unavailable or not writable; direct repair remains active",0);
+        else Log("invasion-scoped reload provenance enabled; background local journal",0);
+        if(defender_provenance::loadFailed)Log("prior provenance journal rejected; new diagnoses only",0);}
+    catch(...){defender_provenance::Close();Log("reload provenance initialization failed; direct repair remains active",0);}
     hook=std::make_unique<PLH::x64Detour>(image+0x10BD90,reinterpret_cast<std::uint64_t>(&Format),&trampoline);
-    if(!hook->hook()){hook.reset();removeTrait=nullptr;Log("install failed; PolyHook detour rejected",0);return false;}
+    if(!hook->hook()){defender_provenance::Close();hook.reset();removeTrait=nullptr;Log("install failed; PolyHook detour rejected",0);return false;}
     spawnHook=std::make_unique<PLH::x64Detour>(image+0x40ED18,reinterpret_cast<std::uint64_t>(&Spawn),&spawnTrampoline);
     if(!spawnHook->hook()){
-        spawnHook.reset();
+        spawnHook.reset();defender_provenance::Close();
         if(hook->unHook()){hook.reset();removeTrait=nullptr;}
         Log("install failed; actor binding detour rejected; check hook-removal result before unload",0);return false;
     }
     char installed[160]{};
-    std::snprintf(installed,sizeof(installed),"v6 installed; automatic imported roster repair; forceTerror=%u diagnostics=%u",unsigned(config.forceTerrorPlayer),unsigned(config.diagnostics));
+    std::snprintf(installed,sizeof(installed),"v12 installed; strict tribes; reinforcement checks; optional Awe and mortal vulnerabilities; forceTerror=%u diagnostics=%u",unsigned(config.forceTerrorPlayer),unsigned(config.diagnostics));
     Log(installed,0);return true;
 }
 inline bool Remove() {
@@ -654,9 +885,11 @@ inline bool Remove() {
     const bool spawnRemoved=!spawnHook || spawnHook->unHook();
     if(formatRemoved)hook.reset();if(spawnRemoved)spawnHook.reset();
     if(!formatRemoved || !spawnRemoved)return false;
+    defender_provenance::Close();
     armedFaction.clear();
     lastBatch=0;lastBatchKey=0;
     StoreThreats(std::make_shared<const std::vector<Threat>>());
-    hook.reset();config.enabled=false;removeTrait=nullptr;addTrait=nullptr;lookupTrait=nullptr;hasCapacity=nullptr;marked.clear();return true;
+    defender_slots::erase=nullptr;defender_slots::push=nullptr;defender_slots::add=nullptr;defender_slots::update=nullptr;
+    hook.reset();config.enabled=false;removeTrait=nullptr;addTrait=nullptr;lookupTrait=nullptr;hasCapacity=nullptr;marked.clear();vulnerabilityIntents.clear();return true;
 }
 }

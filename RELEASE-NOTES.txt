@@ -1,0 +1,25 @@
+Command cleanup v10.16
+
+SOW_ENABLE_COMMAND_RAGE_RECOVERY is an opt-in preprocessor definition. Without
+it, sow_command_stall.hpp contains no implementation and hooks.cpp omits its
+options/installation. Define it in project C++ preprocessor settings to enable
+the existing release + native rage fallback. With the macro, the default idle
+delay is 3000ms; hooks.cpp retains runtime release/enrage settings. Releasing
+an order can change the follower's target. This remains experimental.
+
+commandCooldownDiagnostics=false disables recurring cooldown/planner output.
+No planner audit callback is registered when diagnostics are disabled. A concise
+cooldown initialization line and failures remain. The exact scoped target-cooldown
+bypass and full close override are unchanged. No keybind changes.
+
+Local-test defaults are preserved: defender repair remains disabled, debug player
+damage protection remains enabled. Review these before a public release.
+
+Documentation now records confirmed live bypasses and residual attackability-false
+waiting. It does not claim all circling has been fixed. Superseded investigation
+instructions are removed; native offsets and useful evidence are retained.
+
+Apply hooks.cpp, sow_command_stall.hpp and sow_command_target_cooldown.hpp together,
+then rebuild/restart. Full source and compact documentation packages are provided.
+No DLL deployed. MSVC C++20 /W4 /WX verifies both macro configurations; cooldown,
+close-attack, group, rally and optional stall/rage fixtures pass.

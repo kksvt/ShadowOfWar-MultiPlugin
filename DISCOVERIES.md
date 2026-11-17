@@ -125,7 +125,6 @@ The grunt rule has no hostility or direct-melee restriction: attributed elementa
 damage may qualify too. The wight rule also permits allied non-player targets.
 Both multipliers are user-tested; exhaustive damage-path coverage is not claimed.
 
-
 ## Read-only defender member audit
 
 CE's AI/Class/Role/Tribe fields map respectively to member +0x188/+0x278/
@@ -138,6 +137,6 @@ identifies Overwhelming Awe as trait Terror_Player. Ordinary Fearless is
 Quirk_Fearless and is not itself evidence of cheating.
 
 [The audit procedure](URUK-AUDIT.md) documents bounded external selection/member
-reads and comparison signals. Static mapping and fixture tests are complete;
-imported-defender/Overlord identity, live overview selection and the proposed
-tribe/throne-room repair still require controlled in-game validation.
+reads and comparison signals. Automatic external overview selection remains unresolved. Imported-defender
+repair and tribe/throne-room prevention are user-confirmed in tested cases; see
+[structural policy](DEFENDER-STRUCTURE.md) and [validation](VALIDATION.md).

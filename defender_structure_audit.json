@@ -1,5 +1,5 @@
 {
-  "mode": "Exact-record classification; guarded normalization policy is documented in DEFENDER-STRUCTURE.md.",
+  "mode": "v11 strict named tribe allowlist and existing eleven ordinary class/AI pairs; legacy negative arrays are examples only.",
   "source": "Exact locally shipped special-character catalog plus verified beast models, Zog story records, oversized debug Orc class and their direct Combat/Tree links.",
   "records": {
     "structuralClasses": [
@@ -105,5 +105,26 @@
   },
   "shadowwar_evidence": "Only shipped incoming tribe link: GP_FakeDarkTalionRoleDef via _StructuresFactionTribeEntry #604. Native fallback is experimental; throne-room behavior not yet live-verified.",
   "tribe_selection": "v5: exactly one retained tribe-attack mapping, otherwise Dark; only already-invalid/null tribes are changed.",
-  "tribe_selection_audit": "defender_tribe_fallback_audit.json"
+  "tribe_selection_audit": "defender_tribe_fallback_audit.json",
+  "actor_policy": "sow_defender_actor_policy.hpp / defender_actor_policy_audit.json / DEFENDER-ACTOR-POLICY.md",
+  "appearance_native_rva": "0x1BC3AA8",
+  "live_validation": "Expanded actor/appearance conversion pending; earlier narrow conversions and tribe repair have user confirmation.",
+  "dlc_mystic_fix": {
+    "invalid": "DLC_TribeDef_Sorcerous_Poison",
+    "replacement": "TribeDef_Sorcerous",
+    "evidence": "Both show Fort_Title_Mystic and mystic.tex. Mystic_Fort list contains stock Sorcerous and Undead; MysticP_Fort contains only DLC alias. User reported missing room with imported DLC alias. Geometry root cause/live prevention not yet verified.",
+    "scope": "existing owned imported unspawned normalization; no live room rebuild"
+  },
+  "allowed_tribes": [
+    "TribeDef_Dark",
+    "TribeDef_Feral",
+    "TribeDef_Machine",
+    "TribeDef_Marauder",
+    "TribeDef_Sorcerous",
+    "TribeDef_Terror",
+    "TribeDef_Warmonger",
+    "TribeDef_Slaughter",
+    "TribeDef_Outlaw",
+    "TribeDef_Undead"
+  ]
 }

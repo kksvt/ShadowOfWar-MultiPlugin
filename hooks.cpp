@@ -9,11 +9,19 @@
 #include "sow_gear_resurrection.hpp"
 #include "sow_grunt_command_probe.hpp"
 #include "sow_grunt_command.hpp"
+#include "sow_command_los.hpp"
+#include "sow_close_command_attack.hpp"
+#ifdef SOW_ENABLE_COMMAND_RAGE_RECOVERY
+#include "sow_command_stall.hpp"
+#endif
+#include "sow_command_target_cooldown.hpp"
+#include "sow_grunt_command_native_trace.hpp"
 #include "sow_multi_skills.hpp"
 #include "sow_defender_repair.hpp"
 #include "sow_defender_flee_trace.hpp"
 #include "sow_defender_morale.hpp"
 #include "sow_defender_spawn_audit.hpp"
+#include "sow_uruk_export.hpp"
 #include <polyhook2/Detour/x64Detour.hpp>
 #include <polyhook2/Misc.hpp>
 #include <memory>
@@ -44,14 +52,27 @@ constexpr bool enableGruntCommand = true;
 constexpr bool multiEquipSkillUpgrades = true;
 constexpr bool multiSkillDiagnostics = false;
 // Defender repair: only these three feature options are configurable.
-constexpr bool enableDefenderRepair = true;
-constexpr bool forceTerrorPlayerOnFlaggedDefenders = true;
+constexpr bool enableDefenderRepair = false; // Local command trial; re-enable for imported defender repair.
+constexpr bool forceTerrorPlayerOnFlaggedDefenders = true; // Also converts/removes immunities on flagged defenders.
 constexpr bool defenderRepairDiagnostics = true;
+constexpr bool enableUrukDump = true; // Independent read-only support export.
+constexpr int urukDumpKey = VK_F8;
 constexpr int gruntCommandKey = 'X';
 constexpr int gruntRallyKey = 'Z'; // Approach player, no stealth modifier required.
 constexpr bool gruntCommandRequireHeldStealthKey = true;
 constexpr int gruntCommandStealthKey = VK_LSHIFT; // Match your own stealth binding.
 constexpr bool gruntCommandDiagnostics = false;
+// Temporary focused trace; writes console and %TEMP%/SoW-GruntCommand-active.log.
+constexpr bool traceCommandCrowding = false;
+constexpr bool forceCloseCommandAttack = true;
+constexpr bool bypassCommandTargetCooldown = true;
+constexpr bool commandCooldownDiagnostics = false; // Enable bounded planner/cooldown audit when investigating a stall.
+#ifdef SOW_ENABLE_COMMAND_RAGE_RECOVERY
+constexpr bool releaseStalledCommandedGrunts = true; // Experimental; releases target priority before applying rage.
+constexpr unsigned gruntCommandStallMs = 3000; // Milliseconds of observed idle time before release/enrage.
+constexpr bool enrageReleasedCommandedGrunts = true;
+#endif
+constexpr bool ignoreCommandedGruntsForAttackLos = false; // Scoped crowding trial.
 constexpr bool gruntCommandConsole = false;
 bool enableDebugConsole = true; // Preserve the current project's console option.
 
@@ -136,7 +157,7 @@ bool g_pluginHooksRemoved = true;
 // Install/remove only with game threads quiescent. Initialization should be
 // arranged by a loader outside DllMain's loader lock; see README.md.
 void InitHooks() {
-    if (damageHook || sow::defender_spawn_audit::hook || sow::defender_flee_trace::removeHook || sow::defender_repair::hook || sow::defender_repair::spawnHook || sow::summon_probe::actionHook ||
+    if (sow::command_target_cooldown::hook || damageHook || sow::defender_spawn_audit::hook || sow::defender_flee_trace::removeHook || sow::defender_repair::hook || sow::defender_repair::spawnHook || sow::summon_probe::actionHook ||
         sow::summon_probe::requestHook || sow::summon_probe::countHook ||
         sow::raise_dead_bridge::coreHook || sow::raise_dead_bridge::creationHook ||
         sow::ring_boost::limitHook || sow::ring_boost::radiusHook ||
@@ -208,30 +229,60 @@ void InitHooks() {
         if(!skills) std::puts("[MultiSkills] installation failed; native selection retained");
     }
     // Optional probe failure does not disable the working gameplay features.
+    sow::grunt_command::crowdTrace=false; // Retired sampled-group observer.
     if (enableGruntCommand) sow::grunt_command::Install(gruntCommandKey, gruntCommandDiagnostics,
         gruntCommandRequireHeldStealthKey, gruntCommandStealthKey, gruntCommandConsole, gruntRallyKey);
     else if (traceGruntStealthCommand) sow::grunt_command_probe::Install();
+    if constexpr(enableGruntCommand && bypassCommandTargetCooldown) {
+        sow::command_target_cooldown::Install(commandCooldownDiagnostics);
+    }
+#ifdef SOW_ENABLE_COMMAND_RAGE_RECOVERY
+    if constexpr(enableGruntCommand && releaseStalledCommandedGrunts)
+        sow::command_stall::Install(true,enrageReleasedCommandedGrunts,gruntCommandStallMs);
+#endif
+    if constexpr(enableGruntCommand && forceCloseCommandAttack) {
+        if(!sow::close_command_attack::Install(traceCommandCrowding))
+            std::puts("[GruntCommand] close availability install failed; native behavior retained");
+    }
+    if constexpr(enableGruntCommand && ignoreCommandedGruntsForAttackLos) {
+        if(!sow::command_los::Install(traceCommandCrowding))
+            std::puts("[GruntCommand] command LOS trial unavailable; native visibility retained");
+    }
+    if constexpr(enableGruntCommand && traceCommandCrowding && !forceCloseCommandAttack) {
+        if(!sow::grunt_command_native_trace::Install())
+            std::puts("[GruntCommand] native trace unavailable; gameplay command retained");
+    }
     if (!sow::defender_repair::Install({enableDefenderRepair, defenderRepairDiagnostics, forceTerrorPlayerOnFlaggedDefenders}))
         std::puts("[DefenderRepair] installation failed; repair inactive");
-    if(enableDefenderRepair && sow::defender_repair::hook){
-        const bool normalization=sow::defender_normalize::Install();
-        if(!normalization)std::puts("[DefenderNormalize] initialization failed; structural fields unchanged");
-        if(!sow::defender_spawn_audit::Install()){
-            sow::defender_normalize::Remove();
-            std::puts("[DefenderSpawnAudit] installation failed; normalization disabled; existing trait repair retained");
+    if constexpr(enableDefenderRepair) {
+        if(sow::defender_repair::hook){
+            const bool normalization=sow::defender_normalize::Install();
+            if(!normalization)std::puts("[DefenderNormalize] initialization failed; structural fields unchanged");
+            if(!sow::defender_spawn_audit::Install()){
+                sow::defender_normalize::Remove();
+                std::puts("[DefenderSpawnAudit] installation failed; normalization disabled; existing trait repair retained");
+            }
         }
+        if constexpr(defenderRepairDiagnostics) {
+            if(!sow::defender_flee_trace::Install())
+                std::puts("[DefenderTrace] inventory trace installation failed; basic flee observations retained");
+        }
+        if(!sow::defender_morale::Install(forceTerrorPlayerOnFlaggedDefenders, true))
+            std::puts("[DefenderMorale] native cleanup initialization failed; inventory unchanged");
     }
-    if(enableDefenderRepair && defenderRepairDiagnostics && !sow::defender_flee_trace::Install())
-        std::puts("[DefenderTrace] inventory trace installation failed; basic flee observations retained");
-    if(enableDefenderRepair &&
-       !sow::defender_morale::Install(forceTerrorPlayerOnFlaggedDefenders, true))
-        std::puts("[DefenderMorale] native cleanup initialization failed; inventory unchanged");
+    if(enableUrukDump){
+        if((sow::defender_repair::hook || sow::grunt_command::updateHook) && sow::uruk_export::Install(true,urukDumpKey))
+            sow::grunt_command::onPlayerUpdate=&sow::uruk_export::Poll;
+        else std::puts("[UrukExport] unavailable; requires an active formatter or player-update hook");
+    }
     g_pluginHooksInstalled = true;
     g_pluginHooksRemoved = false;
 }
 
 // The caller must prevent execution in all detours before removal/unloading.
 void RemoveHooks() {
+    sow::grunt_command::onPlayerUpdate=nullptr;
+    sow::uruk_export::Remove();
     const bool spawnAudit = sow::defender_spawn_audit::Remove();
     const bool normalization = sow::defender_normalize::Remove();
     const bool morale = sow::defender_morale::Remove();
@@ -239,6 +290,10 @@ void RemoveHooks() {
     const bool defenderRepair = sow::defender_repair::Remove();
     const bool skills=sow::multi_skills::Remove();
     if(skills)sow::resurrection_weapons::multiSelection=false;
+    const bool commandTrace=sow::grunt_command_native_trace::Remove();
+    const bool targetCooldown=sow::command_target_cooldown::Remove();
+    const bool closeAttack=sow::close_command_attack::Remove();
+    const bool commandLos=sow::command_los::Remove();
     const bool command = sow::grunt_command::Remove();
     const bool commandProbe = sow::grunt_command_probe::Remove();
     const bool gear = sow::gear_resurrection::Remove();
@@ -249,7 +304,7 @@ void RemoveHooks() {
     const bool bridge = sow::raise_dead_bridge::Remove();
     const bool summon = sow::summon_probe::Remove();
     const bool damage = RemoveDamageHook();
-    g_pluginHooksRemoved = spawnAudit && normalization && morale && fleeTrace && defenderRepair && skills && command && commandProbe && gear && aggression && weapons && might && ring && bridge && summon && damage;
+    g_pluginHooksRemoved = spawnAudit && normalization && morale && fleeTrace && defenderRepair && skills && commandTrace && targetCooldown && closeAttack && commandLos && command && commandProbe && gear && aggression && weapons && might && ring && bridge && summon && damage;
     if (g_pluginHooksRemoved) g_pluginHooksInstalled = false;
     if (enableDebugConsole) FreeConsole();
 }

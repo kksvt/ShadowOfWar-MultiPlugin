@@ -177,6 +177,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="sow_command_gate.hpp" />
+    <ClInclude Include="sow_defender_actor_policy.hpp" />
     <ClInclude Include="sow_defender_blacklist.hpp" />
     <ClInclude Include="sow_defender_class_policy.hpp" />
     <ClInclude Include="sow_defender_effects.hpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="sow_defender_morale.hpp" />
     <ClInclude Include="sow_defender_normalize.hpp" />
     <ClInclude Include="sow_defender_repair.hpp" />
+    <ClInclude Include="sow_defender_slots.hpp" />
     <ClInclude Include="sow_defender_spawn_audit.hpp" />
     <ClInclude Include="sow_defender_structure_policy.hpp" />
     <ClInclude Include="sow_defender_trait_policy.hpp" />
@@ -199,6 +201,7 @@
     <ClInclude Include="sow_ring_boost.hpp" />
     <ClInclude Include="sow_ring_might.hpp" />
     <ClInclude Include="sow_summon_probe.hpp" />
+    <ClInclude Include="sow_uruk_export.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />

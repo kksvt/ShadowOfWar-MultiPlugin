@@ -13,6 +13,8 @@ inline std::unique_ptr<PLH::x64Detour> addHook, updateHook, timerHook;
 inline std::uint64_t addTrampoline = 0, updateTrampoline = 0, timerTrampoline = 0;
 using InventoryObserver=void(*)(const char*,Address,Address,int,Address,int);
 inline InventoryObserver inventoryObserver=nullptr;
+using PlayObserver=void(*)(Address,Address,Address);
+inline PlayObserver playObserver=nullptr;
 inline float delayScale = 0.4f;
 inline bool running = true, diagnostics = true;
 inline thread_local Address gruntTimer = 0;
@@ -80,6 +82,7 @@ inline void __fastcall UpdateDetour(Address group, Address circle, Address conte
     gruntTimer = GruntPlay(group) ? group : 0;
     PLH::FnCast(updateTrampoline, static_cast<UpdateFn>(nullptr))(group, circle, context);
     gruntTimer = previous;
+    if(playObserver)playObserver(group,circle,context);
 }
 
 inline void __fastcall TimerDetour(Address timer, float seconds) {

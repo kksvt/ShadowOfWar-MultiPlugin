@@ -90,7 +90,7 @@ inline constexpr std::size_t maxOrders=256;
 struct OrderSignal {
     std::atomic<Address> actor{0}, stats{0}, target{0};
     std::atomic<bool> destroyed{false};
-    std::atomic<unsigned> damageReads{0};
+    std::atomic<unsigned> damageReads{0}, progress{0};
 };
 inline std::array<OrderSignal,maxOrders> orderSignals{};
 inline int commandKey = VK_F6, stealthKey = VK_LSHIFT;
@@ -116,6 +116,11 @@ inline std::array<std::atomic<Address>,maxOrders> rallyActors{};
 inline void StopRally();
 inline bool requireStealthKey = true, diagnostics = true, aiming = false;
 inline bool consoleOutput = true;
+inline bool crowdTrace=false;
+inline bool traceNativeCommandEnds=false;
+inline std::atomic<ULONGLONG> nextCrowdTrace{0};
+inline std::atomic<bool> crowdCommandsActive{false};
+inline std::atomic<unsigned long long> crowdBatch{0};
 inline thread_local bool updating = false;
 inline std::mutex stateMutex, logMutex, updateMutex;
 inline std::atomic<unsigned> logCount{0};
@@ -136,6 +141,10 @@ inline std::array<Binding, 256> candidates{};
 inline std::array<Binding, 512> enemies{};
 inline std::array<Binding, 16> outlined{};
 inline std::array<Active,maxOrders> orders{};
+inline bool(*stallObserver)(std::size_t,ULONGLONG,Address)=nullptr;
+inline void(*stallTick)(ULONGLONG)=nullptr;
+inline void(*orderAuditTick)(ULONGLONG)=nullptr;
+inline void(*stallShutdown)()=nullptr;
 struct Preview { Binding unit; bool owns = false, nativeWants = false; };
 inline Preview preview;
 inline std::atomic<Address> previewActor{0};
@@ -143,7 +152,7 @@ inline std::atomic<bool> previewDestroyed{false};
 inline ULONGLONG nextAimUpdate = 0;
 inline Address previewMarker=0, orderMarker=0;
 inline bool Live(const Binding& b);
-inline void Log(const char* event, Address actor, Address target);
+inline void Log(const char* event, Address actor=0, Address target=0, bool force=false);
 inline void DestroyMarker(Address& holder) {
     const auto marker=holder; holder=0;
     if (marker && native.markerDelete) { auto temporary=marker; native.markerDelete(&temporary); }
@@ -163,8 +172,8 @@ inline void MakeMarker(Address& holder, const Binding& target, Address explicitT
     Log(explicitType?"rally follower HUD marker bound":"native Combat_Marked HUD marker bound",0,target.actor);
 }
 
-inline void Log(const char* event, Address actor = 0, Address target = 0) {
-    if (!diagnostics || logCount.fetch_add(1) >= 2048) return;
+inline void Log(const char* event, Address actor, Address target, bool force) {
+    if (!force && (!diagnostics || logCount.fetch_add(1) >= 2048)) return;
     char line[1024]{};
     std::snprintf(line, sizeof(line), "[GruntCommand] %s actor=%p target=%p\n", event,
         reinterpret_cast<void*>(actor), reinterpret_cast<void*>(target));
@@ -497,6 +506,7 @@ inline void ReleaseUnit(std::size_t slot) {
     }
 }
 inline void Release() {
+    crowdCommandsActive=false;
     for(std::size_t i=0;i<orders.size();++i)ReleaseUnit(i);
     DestroyMarker(orderMarker);
 }
@@ -541,7 +551,9 @@ inline void TraceCommand(Active& active, ULONGLONG now, Address entry, bool heal
     }
 }
 inline void OnDamageCalculation(Address source, Address target, float damage, Address definition, char phase) {
-    if (!diagnostics || !source || !std::isfinite(damage) || damage<=0) return;
+    if (!source || !std::isfinite(damage) || damage<=0) return;
+    for(auto& signal:orderSignals)if(signal.actor.load()==source && !signal.destroyed.load() && signal.target.load()==target)++signal.progress;
+    if(!diagnostics)return;
     bool match=false;
     for(auto& signal:orderSignals) if(signal.actor.load()==source && !signal.destroyed.load() &&
         signal.target.load()==target && signal.damageReads.fetch_add(1)<8) {match=true;break;}
@@ -552,6 +564,74 @@ inline void OnDamageCalculation(Address source, Address target, float damage, Ad
         damage,int(phase),record.nameComplete ? record.name.data() : "<unavailable>");
     Log(message,source,target);
 }
+// Read-only observer of the already-hooked 3778D4 play update. Stage entries
+// contain weak live stats pointers; never infer ownership from the circle target.
+struct CrowdStages {
+    std::array<Address,256> stats{};std::size_t count=0;
+    unsigned stages=0;bool complete=false;
+};
+inline CrowdStages ReadCrowdStages(Address group) {
+    CrowdStages result;const auto sentinel=group+8;
+    auto node=At<Address>(group,0x10);
+    for(unsigned n=0;node.readable && node.value && node.value!=sentinel && n<16;++n) {
+        const auto count=At<unsigned>(node.value,0x10);
+        if(!count.readable || !count.value || count.value>16)return result;
+        ++result.stages;
+        for(unsigned i=0;i<count.value;++i) {
+            const auto stats=At<Address>(node.value,0x38+Address(i)*0x90);
+            if(!stats.readable)return result;
+            result.stats[result.count++]=stats.value;
+        }
+        node=At<Address>(node.value,8);
+    }
+    result.complete=node.readable && node.value==sentinel;
+    return result;
+}
+inline void ObserveCommandPlay(Address group,Address circle,Address) {
+    if(!crowdTrace || !crowdCommandsActive.load())return;
+    const auto now=GetTickCount64();auto deadline=nextCrowdTrace.load();
+    if(now<deadline)return;
+    // Native 37D840/3778D4 identify circle+38 as target stats; +28 is its actor.
+    const auto targetStats=At<Address>(circle,0x38);
+    const auto targetActor=At<Address>(targetStats.value,0x28);
+    if(!targetStats.readable || !targetActor.readable || !Live({targetActor.value,targetStats.value}))return;
+    bool relevant=false;
+    for(const auto& signal:orderSignals)
+        if(signal.actor.load() && !signal.destroyed.load() && signal.target.load()==targetActor.value){relevant=true;break;}
+    if(!relevant || !nextCrowdTrace.compare_exchange_strong(deadline,now+1000))return;
+    const auto selected=ReadCrowdStages(group);
+    const auto play=At<Address>(group,0x20);const auto phase=At<std::uint8_t>(group,0x28);
+    const auto population=At<unsigned>(circle,0x1F4);
+    const auto record=ReadRecord(play.value);
+    unsigned issued=0,assigned=0,attacking=0,close=0,shown=0;
+    std::array<std::array<char,512>,4> details{};
+    for(const auto& signal:orderSignals) {
+        const auto actor=signal.actor.load(),stats=signal.stats.load();
+        if(!actor || signal.destroyed.load() || signal.target.load()!=targetActor.value || !Live({actor,stats}))continue;
+        ++issued;bool slot=false;
+        for(std::size_t i=0;i<selected.count;++i)if(selected.stats[i]==stats){slot=true;break;}
+        if(slot)++assigned;
+        const auto attack=At<Address>(stats,0xE0);
+        if(attack.readable && attack.value)++attacking;
+        const float distance=std::sqrt(DistanceSquared(actor,targetActor.value))*.01f;
+        if(distance<=4.f)++close;
+        if(shown<details.size()) {
+            const auto name=ReadRecord(attack.value);
+            std::snprintf(details[shown++].data(),details[0].size(),
+                "crowd unit=%p assigned=%d distanceM=%.2f attack=%s attackRead=%d",
+                reinterpret_cast<void*>(actor),slot,distance,
+                name.nameComplete?name.name.data():"<none/unavailable>",attack.readable);
+        }
+    }
+    char message[768]{};
+    std::snprintf(message,sizeof(message),
+        "crowd tick=%llu circle=%p group=%p play=%s phase=%u phaseRead=%d population=%u populationRead=%d stages=%u stageReadComplete=%d issued=%u assigned=%u attackRecords=%u within4m=%u shown=%u",
+        static_cast<unsigned long long>(now),reinterpret_cast<void*>(circle),reinterpret_cast<void*>(group),
+        record.nameComplete?record.name.data():"<none/unavailable>",unsigned(phase.value),phase.readable,
+        population.value,population.readable,selected.stages,selected.complete,issued,assigned,attacking,close,shown);
+    Log(message,0,targetActor.value,true);
+    for(unsigned i=0;i<shown;++i)Log(details[i].data(),0,targetActor.value,true);
+}
 inline void AdvanceUnit(std::size_t slot, ULONGLONG now, Address player) {
     auto& active=orders[slot]; auto& signal=orderSignals[slot];
     if (!active.unit.actor) return;
@@ -561,12 +641,14 @@ inline void AdvanceUnit(std::size_t slot, ULONGLONG now, Address player) {
     const auto entry = native.entry(active.unit.actor);
     const auto state = At<std::uint8_t>(entry, 0x80);
     if (active.issued) {
+        if(entry && state.readable && state.value==2 && stallObserver && stallObserver(slot,now,player))return;
         TraceCommand(active,now,entry,slot==0);
         if (!entry || !state.readable || state.value != 2 || now >= active.finishUntil) {
             char message[160]{};
-            std::snprintf(message, sizeof(message), "command ended state=%u valid=%d watchdog=%d",
-                unsigned(state.value), state.readable, now >= active.finishUntil);
-            Log(message, active.unit.actor, active.target.actor); ReleaseUnit(slot);
+            std::snprintf(message, sizeof(message), "command ended state=%u valid=%d watchdog=%d elapsedMs=%llu",
+                unsigned(state.value), state.readable, now >= active.finishUntil,
+                static_cast<unsigned long long>(now-active.issuedAt));
+            Log(message, active.unit.actor, active.target.actor,traceNativeCommandEnds); ReleaseUnit(slot);
         }
         return;
     }
@@ -607,6 +689,7 @@ inline void AdvanceUnit(std::size_t slot, ULONGLONG now, Address player) {
     // Bypass the player's summon action and player-awareness gate. The Orc's
     // native playbook still selects resistance, immunity, no-path, and timeout outcomes.
     const auto unit = active.unit.actor, target = active.target.actor;
+    signal.target=active.target.actor; // Observe native work synchronous with mode entry too.
     native.mode(native.manager(), entry, 2, player, active.target.stats);
     active.issued = true; active.issuedAt=now; active.finishUntil = now + 15000;
     signal.damageReads=0; signal.target=active.target.actor;
@@ -616,9 +699,11 @@ inline void AdvanceUnit(std::size_t slot, ULONGLONG now, Address player) {
     TraceCommand(active,now,current,slot==0);
 }
 inline void Advance(ULONGLONG now,Address player) {
+    if(stallTick)stallTick(now);
+    if(orderAuditTick)orderAuditTick(now);
     const auto before=OrderCount();
     for(std::size_t i=0;i<orders.size();++i)AdvanceUnit(i,now,player);
-    if(before && !OrderCount()) {DestroyMarker(orderMarker);Log("group command finished");}
+    if(before && !OrderCount()) {crowdCommandsActive=false;DestroyMarker(orderMarker);Log("group command finished");}
 }
 struct Nearby {
     std::array<Binding,maxOrders> units{};std::size_t count=0;
@@ -648,6 +733,7 @@ inline void RequestTarget(Address player, ULONGLONG now, const Binding& target) 
     StopRally();
     const auto nearby=CollectNearby(player,target.actor);
     if(!nearby.count) {Log("no available friendly Orc grunts nearby",0,target.actor);return;}
+    ++crowdBatch;crowdCommandsActive=true;
     // Each add can relocate the native registry. Never retain registry pointers
     // across registration or mode transitions for different grunts.
     for(std::size_t i=0;i<nearby.count;++i) {
@@ -682,6 +768,7 @@ inline void RequestTarget(Address player, ULONGLONG now, const Binding& target) 
     char message[200]{};
     std::snprintf(message,sizeof(message),"group command nearby=%zu issued=%zu pending=%zu playerRadius=30m targetRadius=40m",nearby.count,issued,pending);
     Log(message,0,target.actor);
+    crowdCommandsActive=OrderCount()!=0;nextCrowdTrace=0;
     if(OrderCount()) {
         if(previewMarker && PreviewTarget().actor==target.actor) {
             DestroyMarker(orderMarker);orderMarker=previewMarker;previewMarker=0;
@@ -797,6 +884,7 @@ inline void __fastcall CleanupDetour(Address actor) {
     ForgetActor(actor);
     PLH::FnCast(cleanupTrampoline, static_cast<CleanupFn>(nullptr))(actor);
 }
+inline void(*onPlayerUpdate)()=nullptr; // Optional read-only diagnostic hotkey poll.
 inline void __fastcall UpdateDetour(Address first, Address actorReference, Address manager, Address fourth) {
     PLH::FnCast(updateTrampoline, static_cast<UpdateFn>(nullptr))(first, actorReference, manager, fourth);
     if (updating) return;
@@ -807,6 +895,7 @@ inline void __fastcall UpdateDetour(Address first, Address actorReference, Addre
     if (!lock.owns_lock()) return;
     updating = true;
     const auto now = GetTickCount64();
+    if(onPlayerUpdate)onPlayerUpdate();
     Advance(now, player);AdvanceRally(now,player);
     const bool rallyDown=(GetAsyncKeyState(rallyKey)&0x8000)!=0;
     const bool rallyPressed=RisingEdge(rallyDown,rallyKeyDown);
@@ -830,7 +919,9 @@ inline void __fastcall UpdateDetour(Address first, Address actorReference, Addre
     updating = false;
 }
 inline bool Remove() {
+    if(grunt_aggression::playObserver==&ObserveCommandPlay)grunt_aggression::playObserver=nullptr;
     // Clear while the outline trampoline is still allocated. Caller quiesces threads.
+    if(stallShutdown)stallShutdown();
     ClearPreview(); aiming = false; Release(); StopRally();
     bool ok = true;
     for (auto* hook : {&updateHook, &outlineHook, &buffHook, &cleanupHook}) {
@@ -879,7 +970,12 @@ inline bool Install(int key = VK_F6, bool log = true, bool requireHeldStealthKey
     if (!outlineHook->hook()) { outlineHook.reset(); updateHook.reset(); Remove(); Log("outline hook FAILED"); return false; }
     native.outline = PLH::FnCast(outlineTrampoline, static_cast<OutlineFn>(nullptr));
     if (!updateHook->hook()) { updateHook.reset(); Remove(); Log("update hook FAILED"); return false; }
-    Log("v10 installed; F5 rally includes allied Olog grunts; temporary follower markers; Shift+F6 group attack");
+    nextCrowdTrace=0;
+    if(crowdTrace && grunt_aggression::updateHook) {
+        grunt_aggression::playObserver=&ObserveCommandPlay;
+        Log("crowd trace enabled; read-only play snapshots at most once per second",0,0,true);
+    } else if(crowdTrace) Log("crowd trace unavailable: aggression update hook is inactive",0,0,true);
+    Log("v10.2 installed; immediate all-grunt attack dispatch restored; Olog rally and follower markers");
     return true;
 }
 } // namespace sow::grunt_command

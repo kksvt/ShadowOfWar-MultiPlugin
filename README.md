@@ -1,82 +1,86 @@
 # Shadow of War gameplay plugin
 
-A Windows x64 DLL plugin using PolyHook2 and build-specific native game paths.
-The documentation describes the current implementation and findings, without
-prototype histories or superseded installation instructions.
+Windows x64 plugin using PolyHook2 and build-specific native paths. Configuration
+is in hooks.cpp; changing it requires rebuilding and restarting the game.
 
 ## Features
 
 | Feature | Current behavior |
 | --- | --- |
-| Grunt damage | 16x finite positive damage from eligible Orc/Olog grunts to captain candidates |
-| Gondorian wight damage | 16x finite positive damage against identified non-player targets |
-| Mask of the High King | Doubled wight summons alongside ordinary Raise Dead |
-| Old-wight cleanup | Configurable native recast cleanup |
-| Isildur's Ring | 4x enhanced resurrection caps, including validated mask casts; native ally-hit Might proc configured to +4 |
-| Blackened Servant Armor / Urfael | Equipped affix resurrection chance contribution raised to 100%, retaining native eligibility |
+| Damage | 16x finite positive Orc/Olog grunt damage to captain candidates; 16x wight damage to identified non-player targets |
+| Mask of the High King | Six/twelve wights at one/two Might bars alongside Raise Dead; configurable old-wight cleanup |
+| Isildur's Ring | 4x enhanced resurrection limits including mask casts; ally-hit Might proc configured to +4 |
+| Blackened Servant Armor / Urfael | Equipped resurrection-chance contribution raised to 100%, retaining native eligibility |
 | Raised-grunt weapons | Selected Ringwraith element on ordinary, mask and supported gear resurrections |
-| Grunt aggression | All-faction Orc-grunt walk-only redirection and post-play cooldown scale 0.4 |
-| Group attack | Nearby eligible friendly Orc grunts receive the same selected enemy target |
-| Rally | Nearby eligible friendly Orc/Olog grunts approach the player, with temporary participant icons |
-| Skill multi-equip | Selecting an upgrade preserves already-equipped, purchased siblings |
-| Defender repair | Automatic imported-invasion repair; guarded structural normalization, tribe inference, mercenary-effect cleanup, optional Awe and flagged-source damage blocking |
+| Aggression | All-faction Orc-grunt walk-only redirection and post-play cooldown multiplier 0.4 |
+| Group attack | Nearby friendly Orc grunts receive one target; candidate override below 2m; scoped target-cooldown bypass; compile-time experimental rage fallback |
+| Rally | Allied Orc/Olog grunts approach the player, with temporary participant markers |
+| Multi-equip | Selecting purchased upgrades preserves already-equipped purchased siblings |
+| Defender repair | Automatic imported-roster normalization, trait/effect cleanup, outgoing-damage suppression, optional Awe/mortal vulnerabilities |
+| Support export | Automatic imported-roster JSONL snapshots and additional F8 captures |
 
-Healing and unrelated damage remain outside the damage multipliers. Registered
-membership is a captain-candidate heuristic, not a universal rank definition.
-Native eligibility, navigation and combat priorities continue to apply.
+The scoped cooldown bypass has been observed allowing native rejections in live
+group commands. It does not eliminate every delay: later captures showed nearby
+followers tracking the target while native attackability remained false. Its
+cause is unresolved. Grunts engaged elsewhere can still delay obeying an order.
+**Too many active wights or revenants may break their AI.** No safe population cap
+is known.
 
-Too many Gondorian Wights or resurrected grunts active at once may break their AI.
-No safe population limit has been established; see [the necromancy limitation](NECROMANCY.md#active-undead-population-limitation).
-
-## Controls
-
-These bindings reflect the current configured build; key constants remain
-configurable in `hooks.cpp`.
+## Controls and defaults
 
 | Input | Action |
 | --- | --- |
-| Hold Left Shift + X, release X | Aim and issue the group attack |
-| Press Z | Rally eligible allies toward the player; no Shift modifier |
-| Open conquest preview / defender card | Automatically repair the loaded imported roster and arm assault reapplication; no F9 required |
+| Hold Left Shift+X; release X | Aim and issue the group attack |
+| Z | Rally allies, without Shift |
+| F8, game focused | Uruk snapshot; in menus, hold while opening a profile card if needed |
+| Open conquest overview/cards | Automatic imported-roster repair; no repair hotkey |
 
-Installation messages need not contain key names. Attack participation is within
-30m of the player and 40m of the target. Rally selects within 30m and ends at
-4m arrival distance or after 20 seconds.
+Attack sources must be within 30m of the player and 40m of the target. Rally
+selects within 30m and stops tracking at 4m arrival or after 20 seconds.
+
+Current defaults: bypassCommandTargetCooldown=true; experimental rage recovery is
+excluded unless SOW_ENABLE_COMMAND_RAGE_RECOVERY is defined.
+forceCloseCommandAttack=true, traceCommandCrowding=false,
+ignoreCommandedGruntsForAttackLos=false. Routine grunt/skill logs are off.
+Forced Awe, defender diagnostics and support exports remain configured;
+enableDefenderRepair=false for the current local command trial. Re-enable it for
+imported-defender repair. commandCooldownDiagnostics=false keeps the bounded planner audit off. Enable it
+when investigating command stalls. Define SOW_ENABLE_COMMAND_RAGE_RECOVERY in the
+project preprocessor settings to compile and enable the optional release/enrage
+fallback; its delay and runtime options then appear in hooks.cpp.
+
+**Development default:** debugPlayerInvincibility=true suppresses finite positive
+calculated player damage. Disable for ordinary play. It does not prevent every
+scripted death or environmental failure. Other options remain in hooks.cpp.
 
 ## Documentation
 
-- [Discoveries](DISCOVERIES.md): build identity, entity layout, record names and damage.
-- [Necromancy and equipment](NECROMANCY.md): summons, resurrection, ring effects and weapons.
-- [Grunt behavior and commands](GRUNT-COMMANDS.md): aggression, group targeting, rally and native APIs.
-- [Skill multi-equip](MULTI-SKILLS.md): ownership-preserving selection and elemental compatibility.
-- [Defender repair](DEFENDER-REPAIR.md): three settings, supported classes, native effect cleanup and diagnostics.
-- [Automatic repair](DEFENDER-AUTOMATIC.md): activation guards, Second Wind/off-class cleanup and the next live test.
-- [Structural normalization](DEFENDER-STRUCTURE.md): current AI/class/role/tribe repair, retained-attack inference and validation limits.
-- [Validation and limitations](VALIDATION.md): evidence status, reproducibility and unresolved behavior.
-- [Read-only Uruk audit](URUK-AUDIT.md): separate defender-comparison utility; live overview selection is not yet verified.
-
-## Read-only defender research
-
-A separate `uruk-audit` Python utility captures candidate member records for
-normal/edited Overlord comparisons. It performs no repairs and is not installed
-by the gameplay DLL. See [its procedure and limits](URUK-AUDIT.md).
+| Document | Contents |
+| --- | --- |
+| [Discoveries](DISCOVERIES.md) | Build identity, entity/member layouts, records and damage |
+| [Necromancy](NECROMANCY.md) | Summons, resurrection, ring/gear effects and weapons |
+| [Commands](GRUNT-COMMANDS.md) | Aggression, targeting, close eligibility, rally and native paths |
+| [Circling research](COMMAND-CIRCLING-RESEARCH.md) | Shared target cooldown and separate native planner gates |
+| [Multi-equip](MULTI-SKILLS.md) | Purchased siblings and elemental conflicts |
+| [Defender repair](DEFENDER-REPAIR.md) | Scope, detection, cleanup, Awe and mortal conversions |
+| [Structural policy](DEFENDER-STRUCTURE.md) | Exact AI/class/tribe compatibility and appearance effects |
+| [Ability policy](DEFENDER-ABILITY-POLICY.md) | Class/title exceptions and conservative necromancy evidence |
+| [Reload provenance](DEFENDER-RELOAD.md) | Local journal, identity matching and persistence limits |
+| [Support export](URUK-EXPORT.md) | Automatic/F8 files, inventory fields, bounds and Vendetta status |
+| [External audit](URUK-AUDIT.md) | Separate read-only Python utility |
+| [Validation](VALIDATION.md) | Evidence and unresolved limitations |
 
 ## Build and lifecycle
 
-Use MSVC x64, C++17 or newer, with the project's PolyHook2 dependencies. Feature
-configuration and integration live in `hooks.cpp`; include the accompanying
-`sow_*.hpp` files, including `sow_multi_skill_data.hpp` and `sow_command_gate.hpp`.
-The latter generates its gateway at runtime; no separate assembly source is
-required in the plugin project. Headers named `probe` retain compatibility names
-and helpers; the standalone observation-only command probe is disabled when the
-working command module is enabled.
+Use MSVC x64, C++20 and the project's PolyHook2 dependencies. Include hooks.cpp
+and the companion sow_*.hpp headers together. Generated command gateways require
+no assembler in the plugin project. Offsets target the [inspected build](DISCOVERIES.md),
+not every release.
 
-Offsets target the inspected executable, not every game release. Initialize
-outside the loader lock and prevent game-thread execution in detours during
-installation/removal. Check installation/removal results; do not unload while a
-hook cannot be removed. Changing settings requires a rebuild and full restart.
-The current loader itself has not been proven safe for arbitrary hot reload.
+Initialize outside the loader lock. Installation/removal require quiescent game
+threads. Check removal results; do not unload while detours execute or removal
+failed. Arbitrary hot reload is unsupported. Optional failures report their status
+and can retain the working features.
 
-This documentation contains no game executable, extracted database, live heap
-addresses or machine-specific project paths. It does not assign a license to
-the plugin or its dependencies.
+These docs contain no executable, extracted full database, live heap addresses or
+machine-specific project paths. They assign no license to code or dependencies.

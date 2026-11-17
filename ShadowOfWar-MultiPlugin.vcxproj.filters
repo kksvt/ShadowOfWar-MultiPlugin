@@ -84,6 +84,15 @@
     <ClInclude Include="sow_defender_trait_policy.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="sow_defender_actor_policy.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sow_defender_slots.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sow_uruk_export.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

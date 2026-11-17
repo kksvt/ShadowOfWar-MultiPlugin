@@ -45,6 +45,26 @@ inline bool Cleanup(Address actor,Address member) {
         if(after || removed<=0)return false;
     }
     unsigned removedItems=0,shared=0,unknown=0,failed=0;
+    // A live body can inherit an immunity parent/child from class or preset
+    // construction after the stored trait was removed. Strip those only for
+    // registered flagged actors under the force-Awe weakening policy.
+    if(clearMercenaryEffects && defender_repair::config.forceTerrorPlayer){
+        const auto removeItem=[&](const char* name){
+            if(!name)return true;if(!Registered(actor,member))return false;
+            const auto item=native.lookup(name);if(!item){++unknown;Report(actor,member,name,-1,-1,0);return false;}
+            if(!native.has(inventory.value,item))return true;
+            const auto removed=native.remove(inventory.value,item,(std::numeric_limits<int>::max)(),0);
+            const bool after=native.has(inventory.value,item);Report(actor,member,name,1,int(after),removed);
+            if(after || removed<=0){++failed;return false;}++removedItems;return true;
+        };
+        for(const auto& effect:defender_vulnerability_policy::effects){
+            if(!removeItem(effect.parent) || !removeItem(effect.leaf))return false;
+            // Mortal parents may themselves select a resistant child while
+            // weaknesses are unknown. Preserve that native info-state behavior.
+
+        }
+    }
+
     if(clearMercenaryEffects){
         // Re-evaluate class/title permissions after binding: removed stored
         // traits can still have native inventory effects. Allowed title/class
@@ -54,7 +74,8 @@ inline bool Cleanup(Address actor,Address member) {
             {"Quirk_NoLastChance","Item_Quirk_NoLastChance"},
             {"Quirk_LifeSteal","Item_Quirk_Lifesteal"},
             {"Quirk_SecondWind","SecondWind"},
-            {"Quirk_DyingCommand","DyingCommand"}};
+            {"Quirk_DyingCommand","DyingCommand"},
+            {"Quirk_Summoner_Gang","Summoner_Gang"}};
         for(const auto& pair:invalidItems){
             Record trait;trait.nameComplete=true;
             std::snprintf(trait.name.data(),trait.name.size(),"%s",pair[0]);

@@ -1,0 +1,41 @@
+{
+  "version": 12,
+  "native_context": {
+    "getter_rva": "0x188F3AC",
+    "launch_serializer_rva": "0x1B39EE8",
+    "globals_rva": "0x26FFAA8",
+    "session_offset": "0x6D30",
+    "mode_offset": "0x118",
+    "region_offset": "0x130",
+    "invasion_cloud_id_offset": "0x168",
+    "active_gate_offset": "0x47C"
+  },
+  "key": [
+    "invasion_cloud_id",
+    "imported_faction_record_name",
+    "random_seed_u64",
+    "name_string_id_hash_u32"
+  ],
+  "rejected": [
+    "nonunique-current-roster-identity",
+    "zero-seed-or-name",
+    "home-faction",
+    "unsupported-context-or-mode",
+    "changed-context",
+    "malformed-journal"
+  ],
+  "storage": "%LOCALAPPDATA%/SoWPlugin/RepairState/provenance-v1.tsv",
+  "limits": {
+    "entries": 4096,
+    "file_bytes": 1048576,
+    "weakening_mask": 255
+  },
+  "live_status": "pending native context/identity verification",
+  "inventory_native_rvas": [
+    "0x355474",
+    "0x61B868",
+    "0x36A17C",
+    "0x509074"
+  ],
+  "necromancy_rule": "observation only"
+}

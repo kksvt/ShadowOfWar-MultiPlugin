@@ -1,0 +1,38 @@
+{
+  "status": "static evidence and fixture coverage; live test pending",
+  "field": "InvasionFaction",
+  "hash": "0xf4b9f6a7",
+  "regions": [
+    {
+      "region": "MtnPass",
+      "faction": "Faction/Definition:InvasionFaction_MtnPass"
+    },
+    {
+      "region": "island",
+      "faction": "Faction/Definition:InvasionFaction_Island"
+    },
+    {
+      "region": "snowMtn",
+      "faction": "Faction/Definition:InvasionFaction_SnowMt"
+    },
+    {
+      "region": "MinasIthil",
+      "faction": "Faction/Definition:InvasionFaction_MinasIthil"
+    },
+    {
+      "region": "desert",
+      "faction": "Faction/Definition:InvasionFaction_desert"
+    },
+    {
+      "region": "volcano",
+      "faction": "Faction/Definition:InvasionFaction_Volcano"
+    }
+  ],
+  "native_rvas": [
+    "0x1B3685C",
+    "0x18A0808",
+    "0x1B40CAC",
+    "0x1B5D368"
+  ],
+  "policy": "Existing exact imported faction scope only; no home-world whitelist expansion."
+}

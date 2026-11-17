@@ -95,7 +95,23 @@ inline constexpr const char* structuralVisuals[]={
     "nazgulSisters_anim_base",
     "nazgul_anim_base",
 };
+// Exact tribe identities accepted for owned imported defenders. Mystic's
+// ordinary internal name is Sorcerous; the verified resurrection tribe is Undead.
+inline constexpr const char* allowedDefenderTribes[]={
+    "TribeDef_Dark",
+    "TribeDef_Feral",
+    "TribeDef_Machine",
+    "TribeDef_Marauder",
+    "TribeDef_Sorcerous",
+    "TribeDef_Terror",
+    "TribeDef_Warmonger",
+    "TribeDef_Slaughter",
+    "TribeDef_Outlaw",
+    "TribeDef_Undead",
+};
+// Historical examples for audit readers, NOT an exhaustive invalidity policy.
 inline constexpr const char* structuralTribes[]={
+    "DLC_TribeDef_Sorcerous_Poison", // Same Mystic UI label; separate DLC fort-list identity.
     "TribeDef_ShadowWar", // Special Fake Dark Talion tribe; distinct from legitimate Undead.
     "TribeDef_Tribeless",
     "TribeDef_Easterling",

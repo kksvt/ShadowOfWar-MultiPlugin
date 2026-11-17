@@ -1,0 +1,17 @@
+{
+  "version": 8,
+  "new_features": [
+    "F8 read-only loaded-roster JSONL export",
+    "automatic imported arming at existing pre-construction hook"
+  ],
+  "file_directory": "%LOCALAPPDATA%\\SoWPlugin\\Diagnostics",
+  "export_caps": {
+    "members": 512,
+    "buckets": 4096,
+    "trait_list_entries": 512,
+    "approx_bytes": 16777216
+  },
+  "vendetta": "Static import route traced; live routing/repair validation pending.",
+  "policy": "Same six exact imported faction names, owner/row/unspawned/container checks; no home or DLC scope expansion.",
+  "automatic_export": "First observed loaded owned invasion roster, deduplicated by pool/bounds/member identities; changed rosters may produce additional files; 64-stamp session cache."
+}

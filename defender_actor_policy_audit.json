@@ -1,0 +1,65 @@
+{
+  "pairs": [
+    {
+      "model": "Orc_Infantry",
+      "ai": "AI_Infantry"
+    },
+    {
+      "model": "Orc_Infantry_Tough",
+      "ai": "AI_Infantry_Tough"
+    },
+    {
+      "model": "Orc_Spearman",
+      "ai": "AI_Spearman"
+    },
+    {
+      "model": "Orc_Spearman_Tough",
+      "ai": "AI_Spearman_Tough"
+    },
+    {
+      "model": "Orc_Archer",
+      "ai": "AI_Archer"
+    },
+    {
+      "model": "Orc_Archer_Tough",
+      "ai": "AI_Archer_Tough"
+    },
+    {
+      "model": "Orc_Defender",
+      "ai": "AI_Defender"
+    },
+    {
+      "model": "Orc_Defender_Tough",
+      "ai": "AI_Defender_Tough"
+    },
+    {
+      "model": "Orc_Berserker",
+      "ai": "AI_Berserker"
+    },
+    {
+      "model": "Orc_Berserker_Tough",
+      "ai": "AI_Berserker_Tough"
+    },
+    {
+      "model": "OlogHai_Infantry",
+      "ai": "AI_Olog_Infantry"
+    }
+  ],
+  "olog_classes": [
+    "CommanderOlog",
+    "DLC_Architect",
+    "DLC_Thrall",
+    "G2010_Olog",
+    "GP_Bruz",
+    "GP_Ranger",
+    "MachineDestroyerOlog",
+    "OlogHai_Infantry",
+    "OlogHai_Infantry_CelebrimborArmy",
+    "OlogHai_Infantry_SauronArmy",
+    "OlogHai_Prisoner",
+    "Olog_Buff_DebugV2",
+    "Shelob1_Olog",
+    "ologHai_Infantry_DemoDragonbornOverlord"
+  ],
+  "evidence": "Exact Character/Models -> Combat/Tree and SimpleModel -> base Model links in locally shipped game.gamedb. Strict imported-captain compatibility policy, not a proof of cheating."
+}

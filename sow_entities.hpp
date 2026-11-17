@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <array>
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 
@@ -76,11 +77,30 @@ inline Record ReadRecord(Address address) noexcept {
     // Mirrors native record-name helper 0x14018BDB0.
     if (!flags.readable || !(flags.value & 2) ||
         !text.readable || !text.value) return result;
-    for (std::size_t i = 0; i + 1 < result.name.size(); ++i) {
-        const auto ch = Read<char>(text.value + i);
-        if (!ch.readable) return result;
-        result.name[i] = ch.value;
-        if (!ch.value) { result.nameComplete = true; return result; }
+    // Names are immutable GameDB strings, but pointer validity is still checked
+    // on every read. Batch within the current 4-KiB page; never read a following
+    // protected page merely because the terminator is near a boundary.
+    std::size_t i=0;
+    while(i+1<result.name.size()){
+        const auto current=text.value+i;
+        const auto remaining=result.name.size()-1-i;
+        const auto pageRemaining=std::size_t(0x1000-(current&0xFFF));
+        const auto count=(std::min)((std::min)(remaining,pageRemaining),std::size_t(64));
+        std::array<char,64> block{};SIZE_T bytes=0;
+        const bool readable=ReadProcessMemory(GetCurrentProcess(),reinterpret_cast<const void*>(current),
+            block.data(),count,&bytes) && bytes==count;
+        if(!readable){
+            // Preserve the old behavior if a larger read fails but a terminated
+            // prefix is still readable. Do not cache failures or record pointers.
+            const auto ch=Read<char>(current);if(!ch.readable)return result;
+            result.name[i++]=ch.value;
+            if(!ch.value){result.nameComplete=true;return result;}
+            continue;
+        }
+        for(std::size_t j=0;j<count;++j){
+            result.name[i++]=block[j];
+            if(!block[j]){result.nameComplete=true;return result;}
+        }
     }
     return result; // Truncated names never pass Named().
 }

@@ -1,0 +1,16 @@
+{
+  "utc": "2026-11-16T14:27:47.720611+00:00",
+  "read_only": true,
+  "source": "native invasion UI opponent-name source; untruncated by UI formatter",
+  "pid": 28312,
+  "module_base": "0x140000000",
+  "session": "0xea681e8",
+  "name_address": "0xea68528",
+  "active_name_gate": 1,
+  "name": "明辉",
+  "utf16_le_hex": "0e66898f",
+  "codepoints": [
+    "U+660E",
+    "U+8F89"
+  ]
+}

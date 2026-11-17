@@ -1,92 +1,82 @@
 # Validation and remaining limits
 
-## Current evidence
+## User-confirmed behavior
 
-| Area | In-game evidence |
-| --- | --- |
-| Grunt/captain and wight damage multipliers | User-confirmed working |
-| Doubled mask summons plus Raise Dead | Confirmed at one and two Might bars |
-| Ring resurrection bonus | User-confirmed; traces show effective 24/40 caps on ordinary and mask paths |
-| Ring ally-hit Might | Positive user report; exact per-hit amount and every ally type not controlled-measured |
-| Ordinary and gear-resurrected elemental weapons | User-confirmed working |
-| Blackened Servant Armor / Urfael resurrection | User-confirmed working |
-| Aggression / revenant movement | User-confirmed improvement; redirects and timer scaling observed |
-| Group attack | User-confirmed working; individual command/target/attack/damage traces observed |
-| Rally, Olog rally and participant icons | User-confirmed working |
-| Purchased upgrade multi-equip | User-confirmed working; persistence and exhaustive combinations not separately tested |
-| Defender repair | User-confirmed repair/fleeing/damage suppression on previous classes; expanded Berserker/Defender/Olog coverage fixture-tested, live check pending |
-| Read-only defender audit | 38 fixture tests; tested siege menu leaves global selection empty; exact CE-pointer capture required |
+- Damage multipliers, mask one/two-bar doubling alongside Raise Dead, ring
+  enhanced resurrection caps, gear resurrection and elemental grants work.
+- The ring ally-hit Might effect was observed working; exact per-hit accounting
+  has not been isolated in a controlled test.
+- Aggression changes, group targeting, rally including Ologs, participant markers
+  and purchased-upgrade multi-equip were confirmed in game.
+- The close-command override initially seemed helpful, but follow-up testing
+  did not reliably eliminate circling. Engaged grunts can still ignore an order.
+- Flagged imported defenders received trait cleanup, Awe, mortal vulnerabilities
+  and outgoing calculated-damage suppression; affected warchiefs fled after the
+  native morale/behavior cleanup.
+- Structural normalization and throne-room prevention succeeded on tested
+  unsupported Mystic and tribeless forts. Tested assaults had valid geometry,
+  corrected theme and no observed oversized defenders.
+- Automatic/manual exports were used for real captures. Recent repair builds
+  were reported without noticeable lag spikes; this is not a universal latency
+  guarantee.
 
-The cleanup toggle is implemented; its two settings have not been documented as
-a separate controlled test matrix. A general positive report is not proof of
-every optional configuration or every possible native game state.
+## Static and fixture coverage
 
-## Build and synthetic checks
+MSVC C++20 warning-as-error syntax checks cover the combined hooks source.
+Targeted fixtures cover command scope/range, original fallback ABI and score
+outputs, group/rally ownership, structural allowlists, trait/picker capacity and
+readback, identity matching, journal validation/atomic writes, and background DLL
+worker lifetime. Fixtures establish tested contracts, not every engine state.
 
-The implementation passed MSVC x64 C++17 syntax checks and targeted synthetic
-checks for classification, equipment lifecycle, bounded resurrection jobs,
-selection/radius rules, targeting, group fan-out, registry relocation, rally
-ownership, markers and skill sibling preservation.
+The close override skips the whole native candidate function only in its narrow
+scope. Outside it, original arguments, return and score behavior are retained.
+Heavy command tracing and the experimental LOS bypass are disabled by default.
 
-A native machine-code harness compared the command gateway with its original
-getter and deliberately clobbered registers/floating-point state. It checked
-pass-through/override behavior, GPR/flags/XMM/x87/MXCSR preservation, actual call
-redirection/restoration, unwind regions and signature-mismatch refusal.
+The stalled-order fallback passes targeted timer, hysteresis, pause/progress reset,
+borrowed-registration preservation, native release and existing-rage fixtures.
+Full hooks pass MSVC C++20 /W4 /WX syntax checks. Native rage mapping/lifetime
+were traced in the shipped database and IDA. A subsequent live capture confirmed nine command releases with the native rage
+buff present for all nine. Subsequent attack behavior remains unverified.
 
-Synthetic tests demonstrate these contracts under their fixtures. They do not
-prove arbitrary build compatibility, pathfinding, native combat stacking, save
-persistence or full-process lifecycle safety. Local test scripts are development
-tools, not substitutes for the in-game observations above.
+The initial cooldown scope fixture had mirrored an incorrect context layout.
+The corrected v2 fixture independently models constructors 0x2DA938/0x30D1A4,
+rejects that old layout, and checks weak-reference target-value sampling.
+The corrected scoped target-cooldown bypass passes exact record/link, active-pair,
+mode/registry identity, liveness/allegiance, original-result/ABI and no-memory-write
+fixtures. Existing close-gate, group/rally and stall fixtures also pass. Live captures confirm scoped bypasses, including larger groups, but not complete
+elimination of circling. A later capture showed sustained attackable=0 despite
+correct target tracking and occasional attack permission. No causal producer
+condition was identified. Recovery is now compile-time optional, and planner
+audit output is disabled by default.
 
-## Interpretation rules
+Full hooks compile with and without SOW_ENABLE_COMMAND_RAGE_RECOVERY. The recovery
+fixture explicitly opts into the macro; its existing behavior is retained. Normal
+builds omit the recovery implementation and installation.
 
-- Failed/unreadable identity is not evidence of a grunt or enemy.
-- A marker means a target or participant is tracked, not that movement or a hit completed.
-- Mode 2 confirms command state, not attack success. Check target match and native attack/damage evidence.
-- Damage calculations can be repeated or speculative. Correlate actor pairs and health changes.
-- Accepted/dead/pre-dispatch corpse counts are not completed resurrections.
-- Registration index is a useful tested heuristic, not a comprehensive engine rank enum.
-- Native attacker-slot arbitration, resistance, movement and eligibility checks remain active.
+## Still unresolved
 
-## Defender audit scope
+- Large wight/revenant populations can break AI. No safe population limit is known.
+- Candidate eligibility is one layer: earlier admission and downstream path,
+  animation and attack selection can still prevent an attack. There is no proven
+  general fix for switching an already-engaged grunt's target.
+- Necromancy has legitimate counterexamples to simple stored-skin checks.
+  Slayer/frost-immunity generation is ambiguous. These remain review-only.
+- Mortal vulnerabilities do not guarantee instant death from every damage source.
+  The damage hook does not cover every hazard, unattributed effect or scripted death.
+- Model regeneration can reset stored equipment, colour and look. Preview caches
+  may remain stale. Not every exotic model combination has been tested.
+- Tribe correction prevents tested bad throne-room construction; it does not
+  rebuild missing geometry inside an already-running assault.
+- Journal inheritance across a real invasion reload with the same Cloud ID still
+  needs controlled verification. Rejected ambiguous identities are intentional.
+- Hacked Online Vendetta coverage has static/fixture support, not live end-to-end
+  confirmation. Exports are synchronous and may briefly pause the game.
+- Hooks require the inspected game build and quiescent lifecycle operations;
+  arbitrary hot unload is unsupported.
 
-The separate [read-only utility](URUK-AUDIT.md) does not establish that a member
-is an imported Overlord or definitively cheated. Missing/unreadable data and
-ordinary Fearless/immunities are not cheating findings. The overview tribe/throne-
-room timing cannot be established by that utility alone. It performs no repair.
-The separate DLL repair feature now activates automatically for complete scoped
-imported rosters. User testing confirmed Dark tribe/room replacement for ShadowWar
-and Tribeless Overlords. The v6 loading capture confirms automatic activation and
-off-class Second Wind removal; it is not proof of every native path or save-state
-guarantee. See [current repair behavior](DEFENDER-AUTOMATIC.md).
+## Useful feedback
 
-## Open questions
-
-User-reported: too many simultaneously active Gondorian Wights or resurrected
-grunts may break their AI. The cause, safe population threshold and recovery method
-are unverified. Raised summon/resurrection limits are not a guarantee of correct
-AI behavior at those populations, and no global active-undead cap is enforced.
-
-Multi-equipped action/element combinations can still resolve by native priority.
-Persistence of all active siblings across save/reload needs a specific test.
-Ring hit semantics for every ally, blocked hit and elemental hit are not mapped.
-The corpse blocker `0x190EFC` reads object `+0x22B8 -> +0xD0`; its precise flag
-meaning remains unknown. Why some enhanced attacks choose ordinary corpse ticks
-is not fully explained, although the current override handles the observed path.
-
-Enemy-captain resurrection is not implemented. Native dispatcher `0x1A91294`
-uses member resolution `0x18D920`, with distinct registered construction
-`0x1A904D0` and unregistered construction `0x1A90520`. This establishes separate
-paths, not safe enemy eligibility, allied-undead conversion or persistent roster
-updates. Those remain unresolved.
-
-Other executable builds, alternate player states, exhaustive entity taxonomy,
-all optional settings and arbitrary DLL hot reload are outside current validation.
-
-## Reproducing a finding
-
-Record the executable hash and relevant configuration. For static inspection,
-add the loaded/preferred module base to documented RVAs. For runtime checks,
-isolate one feature and keep complete paired actor/target or equipment records.
-Use bounded diagnostics; retain unknown fields as unknown. Report observations
-and inferred interpretation separately.
+Record the build/configuration, observed source and target, mission/capture stage
+and behavior. Attach an automatic export and, when useful, a post-load F8 snapshot.
+Short self-resolving command hesitation is still useful evidence; no minimum
+stall duration or exact ranked-fort replay is required.

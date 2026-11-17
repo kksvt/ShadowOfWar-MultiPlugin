@@ -1,108 +1,94 @@
-# Imported defender structure repair
+# Imported defender structural policy
 
-## Current implementation
+Only complete, owned, unspawned imported members qualify. Readable named
+incompatible data is normalized; unreadable/unnamed data defers. This compatibility
+policy does not label every story variant invalid elsewhere.
 
-The loose sources and v6 package contain the tested v4 normalization baseline plus
-tribe inference from retained attacks. v3 remains an archived rollback, not the
-current implementation. Configuration stays limited to enable, force Terror_Player,
-and diagnostics. Complete scoped imported members automatically arm repair when
-the native formatter processes them; no F9 is required. See DEFENDER-AUTOMATIC.md.
+## AI and class
 
-Normalization checks identity, faction ownership, row, unspawned state and readable
-member containers. It handles SQ_Zog -> Orc_Spearman/AI_Spearman and the oversized
-debug Infantry class -> Orc_Infantry_Tough/AI_Infantry_Tough, provided the existing
-appearance is an ordinary Orc. Known incompatible AI on supported classes receives
-that class's ordinary AI. Model/template lookups must agree before changing links.
-Unknown classes and full beast/Nazgul/Balrog appearance conversions remain unsupported.
-
-Known special roles use the native Role_Outcast fallback. Role is also the epithet
-record, so this changes the displayed title to “the Outcast.” Retaining the original
-cosmetic title separately is not implemented.
-
-## Tribe repair
-
-Readable null tribe pointers and these exact records receive replacement:
-
-- TribeDef_Tribeless
-- TribeDef_Easterling
-- TribeDef_NazgulTwins
-- TribeDef_ShadowWar
-
-An unreadable/unnamed non-null pointer is not treated as a null tribe. Existing
-valid tribes are preserved even when their attacks suggest a different tribe.
-Legitimate TribeDef_Undead never independently triggers repair or cheating status.
-
-Before calling the existing native tribe setter, v5 selects a stock replacement
-from the member's complete trait list:
-
-| Retained attack | Replacement tribe |
+| Character/Models | Expected Combat/Tree |
 | --- | --- |
-| TribeAttack_Dark | TribeDef_Dark |
-| TribeAttack_Feral | TribeDef_Feral |
-| TribeAttack_Machine | TribeDef_Machine |
-| TribeAttack_Marauder | TribeDef_Marauder |
-| TribeAttack_Mystic | TribeDef_Sorcerous |
-| TribeAttack_Terror | TribeDef_Terror |
-| TribeAttack_Warmonger | TribeDef_Warmonger |
-| TribeAttack_Slaughter | TribeDef_Slaughter |
-| TribeAttack_Outlaw | TribeDef_Outlaw |
+| Orc_Infantry | AI_Infantry |
+| Orc_Infantry_Tough | AI_Infantry_Tough |
+| Orc_Spearman | AI_Spearman |
+| Orc_Spearman_Tough | AI_Spearman_Tough |
+| Orc_Archer | AI_Archer |
+| Orc_Archer_Tough | AI_Archer_Tough |
+| Orc_Defender | AI_Defender |
+| Orc_Defender_Tough | AI_Defender_Tough |
+| Orc_Berserker | AI_Berserker |
+| Orc_Berserker_Tough | AI_Berserker_Tough |
+| OlogHai_Infantry | AI_Olog_Infantry |
 
-Each mapping is verified in the shipped database through tribe -> picker -> entry
--> trait links. One distinct match selects that tribe; duplicate copies of the same
-trait are not ambiguity. No match or multiple distinct matches selects Dark. If the
-inferred record lookup fails validation, Dark is tried. If that also fails, the
-member is unchanged. An incomplete trait list already prevents member readiness.
-Scope/identity is revalidated after lookup and before the native setter.
+Matching pairs stay unchanged. Other named classes receive a verified stock
+fallback; mismatched named AI, including another ordinary class's AI, is replaced.
+Olog family appearance/classes prefer OlogHai_Infantry. SQ_Zog uses the tested
+Spearman fallback; ZTestVeryLargeOrcInfantry uses Tough Infantry. Otherwise retain
+an identifiable ordinary moveset or use Tough Infantry. Lookups/readback validate
+the model/tree/template links.
 
-The clue estimates a suitable ordinary tribe, not proven historical identity:
-edited Orcs can have edited attacks too. Valid records are never overwritten just
-because they have no attack or conflicting attacks. Diagnostics print the choice,
-reason, and native pointer verification. No new hooks or public settings were added.
+Model conversion reconciles six base-class bonus picker families while retaining
+advanced class. Known incompatible special roles receive a validated ordinary
+fallback; Role_Outcast changes the epithet. Conversion does not prove every
+scripted/inventory invulnerability removed.
 
-## Offline tribe findings
+## Tribes and fortress generation
 
-There are 19 shipped tribe definitions. Undead is explicitly assigned by ordinary
-Raise Dead rewards and belongs to Mystic_Fort. Bruz belongs to the Warmonger list.
-DLC_TribeDef_Sorcerous_Poison belongs to MysticP_Fort. These are preserved.
+| Allowed tribe record | Family |
+| --- | --- |
+| TribeDef_Dark | Dark |
+| TribeDef_Feral | Feral |
+| TribeDef_Machine | Machine |
+| TribeDef_Marauder | Marauder |
+| TribeDef_Sorcerous | Mystic |
+| TribeDef_Terror | Terror |
+| TribeDef_Warmonger | Warmonger |
+| TribeDef_Slaughter | Slaughter |
+| TribeDef_Outlaw | Outlaw |
+| TribeDef_Undead | Undead |
 
-Gondor and Sauron have no tribe-list membership in this database, but absence alone
-does not prove unsafe geometry. They are research candidates, not newly blacklisted.
-NazgulTwins itself occurs in Black/Warmonger lists, so list membership alone cannot
-serve as a universal validity whitelist either. Runtime geometry selection still
-needs further tracing before expanding the invalid-record policy.
+All other readable nonempty named tribes are outside this allowlist; prefixes/case
+variants do not pass. Readable null uses the missing-tribe path. Unreadable or
+unnamed non-null data is unknown, not null.
 
-ShadowWar's only shipped incoming tribe link leads to GP_FakeDarkTalionRoleDef.
-It is separate from legitimate Undead despite sharing the Fort_Title_Undead label.
-The export is defender_tribe_fallback_audit.json; work/audit_tribe_fallbacks.py
-reproduces its mappings and list memberships without reading the game process.
+DLC_TribeDef_Sorcerous_Poison maps directly to ordinary TribeDef_Sorcerous. It
+shares Mystic UI labels but has distinct fort-selection data. Other replacements
+infer one unambiguous retained TribeAttack_<family>; Mystic maps to Sorcerous,
+and Dark/Feral/Machine/Marauder/Terror/Warmonger/Slaughter/Outlaw map to matching
+TribeDef names. Missing/conflicting clues or failed preferred lookup use verified
+Dark. Valid tribes are not overwritten because their attacks differ. Clues choose
+a compatible fallback, not proven original history.
 
-## Live evidence and limits
+TribeDef_Undead is legitimate for resurrected captains and ordinary Mystic fort
+data; TribeDef_ShadowWar is distinct. Pre-assault repair has user-confirmed
+throne-room prevention for Tribeless and the DLC Mystic alias. It cannot rebuild
+geometry already missing during assault; every exotic tribe is not live-tested.
 
-The user completed the v4 test with Dark fortress theming, a present throne-room
-floor and no noticed oversized enemies. The assault capture confirms Bringer's
-ordinary Tough Infantry runtime class and the Overlord's ordinary Defender class,
-Outcast role and Dark tribe through binding. Giant's combat size was not separately
-established by an identifiable construction pair in that capture.
+## Appearance, equipment and scale
 
-This supports the existing pre-assault replacements for that tested fortress. It
-does not validate every tribe, class or fort. The v5 inferred alternatives have
-offline and mocked tests, not live confirmation yet. One earlier F9 freeze did not
-recur after a restart; its cause remains unconfirmed. The console disables QuickEdit.
+Compatible Orc/Olog base/body/head appearances are retained; accessories are not
+globally stripped. Incompatible full appearance can invoke guarded native
+regeneration 0x1BC3AA8. It clears stored weapon/armour, colour and look lists, then
+builds equipment from personality, role, tribe and class kit. It is not an
+inventory-preserving refresh. Failed readback remains unconfirmed; retries and
+preflight checks cannot guarantee every special-character combination is safe.
 
-AIScaleRange (hash 0x234A89CB) is [2,2] on the debug giant and approximately
-[0.9,1.1] on ordinary Tough Infantry. Already-created preview models may remain large
-after a class-pointer change. No direct scale write or preview-rebuild call is used.
-The previously suspected tribe fields 0x2FDDC794/0xC275C7C6 are killed/recruited
-statistics IDs, not established geometry selectors.
+AIScaleRange is hash 0x234A89CB: ZTestVeryLargeOrcInfantry has [2,2], Tough Infantry
+about [0.9,1.1], SQ_Zog [0.9,1.0]. A class-link change need not immediately resize a
+cached preview actor. Tested assaults no longer showed noticed oversized enemies;
+no independent runtime-scale setter is established. Appearance+0x178 is colour,
+not a safe scale-write target.
 
-## Native references and validation
+Hashes 0x2FDDC794/0xC275C7C6 are StatTribeMembersKilled/Recruited IDs, not geometry
+selectors. Native hashing uses fold table 0x1DB50D0 and h=h*919+foldedByte, not
+ordinary ASCII lowercasing.
 
-Build-specific RVAs: native tribe setter 0x1BC6718, role setter 0x1BC63F8,
-combat-tree template/model getters 0x577124/0x57710C, full construction hook 0x1036D0,
-member binding hook 0x40ED18. The construction hook may substitute a validated
-template; it preserves all other arguments and the native return.
+| RVA | Native path |
+| --- | --- |
+| 0x1BC6718 / 0x1BC63F8 | Tribe / role setters |
+| 0x577124 / 0x57710C | Template AI / model getters |
+| 0x1BC3AA8 / 0x1C15B0C | Member regeneration / faction caller |
+| 0x577190 / 0x1BEA190 / 0x4C5194 | Descriptor init / member descriptor / simple-model generation |
+| 0x1C10F00 / 0x1C11B08 / 0x61BA74 | Native inventory/equipment regeneration |
 
-MSVC C++20 /W4 /WX fixtures cover all nine mappings, ambiguity, duplicate clues,
-lookup failures, idempotence, valid/Undead preservation, live/home/master guards,
-AI/class pairing and creation-hook routing through a mock native entry. Full
-hooks.cpp syntax passes. Mocks do not establish native engine safety. No DLL was deployed.
+See [repair scope](DEFENDER-REPAIR.md) and [validation](VALIDATION.md).

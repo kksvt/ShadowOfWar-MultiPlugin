@@ -11,6 +11,7 @@ inline std::unique_ptr<PLH::x64Detour> hook;
 inline std::uint64_t trampoline=0;
 inline thread_local bool observing=false;
 inline const char* ExpectedAI(const Record& model) {
+    if(const auto pair=defender_repair::StandardClass(model))return pair->ai;
     static constexpr const char* pairs[][2]={
         {"Orc_Infantry","AI_Infantry"},{"Orc_Spearman","AI_Spearman"},
         {"Orc_Infantry_Tough","AI_Infantry_Tough"},{"Orc_Archer_Tough","AI_Archer_Tough"},
@@ -27,10 +28,18 @@ inline Address __fastcall Create(Address manager,Address label,Address placement
     bool capture=false;Address key=0,seed=0,identity=0;
     if(!observing){
         std::unique_lock<std::mutex> lock(defender_repair::stateMutex,std::try_to_lock);
+        if(lock.owns_lock() && !defender_repair::ScopeReason(member) && defender_repair::beforeImportedRepair)
+            defender_repair::beforeImportedRepair(member);
+        if(lock.owns_lock() && defender_repair::config.enabled && !defender_repair::ScopeReason(member) &&
+           !defender_repair::ArmedFor(member) && defender_repair::AutomaticSeedReady(member))
+            defender_repair::ArmForSpawn(member);
         if(lock.owns_lock() && defender_repair::config.enabled &&
            defender_repair::ArmedFor(member) && !defender_repair::ScopeReason(member)){
             const auto incoming=definition;
             if(defender_normalize::enabled)definition=defender_normalize::CreationTemplate(member,definition);
+            // A copied member may already be sanitized and bind later with
+            // initialize=false. Reapply its recorded policy before construction.
+            defender_repair::Repair(member);
             const auto k=At<Address>(member,0x178),s=At<Address>(member,0x168),id=At<Address>(member,0x170);
             if(defender_repair::config.diagnostics && k.readable && s.readable && id.readable){
                 capture=true;key=k.value;seed=s.value;identity=id.value;
