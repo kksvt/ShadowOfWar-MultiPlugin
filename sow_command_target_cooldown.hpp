@@ -1,5 +1,9 @@
 #pragma once
 #include "sow_grunt_command.hpp"
+#include "sow_command_perception_audit.hpp"
+#include "sow_command_perception_trace.hpp"
+#include "sow_command_planner_trace.hpp"
+#include "sow_command_target_priority.hpp"
 namespace sow::command_target_cooldown {
 namespace gc=grunt_command;
 using PredicateFn=char(__fastcall*)(Address,Address);
@@ -96,6 +100,7 @@ inline void AuditTick(ULONGLONG now) {
     auto deadline=nextLog.load();if(now<deadline || !nextLog.compare_exchange_strong(deadline,now+1000))return;
     unsigned ordered=0,nearCount=0,attempted=0,complete=0,noPermission=0,notAttackable=0;
     gc::Binding nearestSource{},nearestTarget{};float nearestDistance=INFINITY;
+    gc::Binding blockedSource{},blockedTarget{};float blockedDistance=INFINITY;
     for(const auto& signal:gc::orderSignals){
         const auto actor=signal.actor.load(),stats=signal.stats.load(),target=signal.target.load();
         if(!actor || !stats || !target || signal.destroyed.load())continue;
@@ -108,21 +113,73 @@ inline void AuditTick(ULONGLONG now) {
             ++nearCount;
             if(attempted<8){
                 ++attempted;const auto sample=ReadPlanner({actor,stats},{target,targetStats.value});
-                if(sample.complete){++complete;if(!sample.permission)++noPermission;if(!sample.attackable)++notAttackable;}
+                if(sample.complete){
+                    ++complete;if(!sample.permission)++noPermission;
+                    if(!sample.attackable){++notAttackable;if(distance<blockedDistance){blockedDistance=distance;blockedSource={actor,stats};blockedTarget={target,targetStats.value};}}
+                }
             }
         }
     }
     const auto nearest=ReadPlanner(nearestSource,nearestTarget);
+    namespace pa=command_perception_audit;
+    const auto base=ring_might::Base();
+    const auto capacity=pa::ReadCapacity(base+0x27C3D60,base+0x26FFC48);
+    const auto clock=pa::ReadClock(base+0x2702598);
+    const auto evidence=pa::ReadEvidence(nearestSource.actor,nearestTarget.actor,capacity.matrix,clock);
     const auto count=[](Scope scope){return rejected[static_cast<unsigned>(scope)].load();};
-    char text[640]{};
+    char text[1024]{};
     std::snprintf(text,sizeof(text),"cooldown audit batch=%llu totalPredicate=%llu exactCalls=%llu pass=%llu deny=%llu bypass=%llu badContext=%llu untracked=%llu entity=%llu command=%llu registry=%llu link=%llu ordered=%u near2m=%u nearSampled=%u nearRead=%u nearNoPermission=%u nearNotAttackable=%u",
         gc::crowdBatch.load(),predicateCalls.load(),exactCalls.load(),nativePasses.load(),nativeDenied.load(),bypassed.load(),count(Scope::Context),count(Scope::Untracked),count(Scope::Entity),count(Scope::Command),count(Scope::Registry),count(Scope::Link),ordered,nearCount,attempted,complete,noPermission,notAttackable);
     Report(text);
+    if(command_target_priority::enabled.load()){
+        std::snprintf(text,sizeof(text),"target priority evaluated=%llu promoted=%llu skipped=%llu",
+            command_target_priority::evaluated.load(),command_target_priority::promoted.load(),command_target_priority::rejected.load());
+        Report(text);
+    }
+    command_perception_trace::Snapshot trace;
+    if(command_perception_trace::Sample(blockedSource.actor?blockedSource:nearestSource,blockedSource.actor?blockedTarget:nearestTarget,now,trace)){
+        const auto focusedTarget=gc::Bind(trace.target);
+        const auto focused=ReadPlanner({trace.source,trace.stats},focusedTarget);
+        const auto pair=pa::ReadEvidence(trace.source,trace.target,capacity.matrix,clock);
+        const auto& c=trace.counters;
+        std::snprintf(text,sizeof(text),"perception query focus=%llu batch=%llu source=%p target=%p focusMs=%llu dispatch=%llu queued=%llu queueUnknown=%llu prep2=%llu prep3=%llu prepOther=%llu delivered=%llu classify=%llu transitionReject=%llu classUnreadable=%llu refreshCalls=%llu old=%d new=%d progress=%.3f selected=%d attackable=%d permission=%d pair=%s evidence43=%u awareness44=%u age=%.3f duration=%.3f droppedGlobal=%llu",
+            trace.epoch,trace.batch,reinterpret_cast<void*>(trace.source),reinterpret_cast<void*>(trace.target),now>=trace.started?now-trace.started:0,c.dispatch,c.queued,c.queueUnknown,c.prep2,c.prep3,c.prepOther,c.delivered,c.classify,c.transitionRejected,c.classUnreadable,c.refreshCalls,c.oldState,c.newState,c.progress,focused.targetMatch,focused.attackable,focused.permission,pa::Name(pair.status),pair.evidence43,pair.awareness44,pair.age,pair.duration,command_perception_trace::dropped.load());
+        Report(text);
+        command_planner_trace::Snapshot planner;
+        if(command_planner_trace::Sample(trace,planner)){
+            const auto& p=planner.counters;
+            std::snprintf(text,sizeof(text),"planner trace focus=%llu batch=%llu source=%p target=%p circleBegin=%llu circleAccepted=%llu circleResults0/1/2/other=%llu/%llu/%llu/%llu circleEnd=%llu circlePermissionBeginPass/Fail=%llu/%llu circlePermissionUpdatePass/Fail=%llu/%llu attackBegin=%llu attackAccepted=%llu attackResults0/1/2/other=%llu/%llu/%llu/%llu attackPermissionBeginPass/Fail=%llu/%llu attackPermissionUpdatePass/Fail=%llu/%llu startsBegin/Update=%llu/%llu droppedGlobal=%llu",
+                trace.epoch,trace.batch,reinterpret_cast<void*>(trace.source),reinterpret_cast<void*>(trace.target),p.calls[0],p.circleAccepted,p.circleResults[0],p.circleResults[1],p.circleResults[2],p.circleResults[3],p.calls[2],p.permissionPass[0],p.permissionFail[0],p.permissionPass[1],p.permissionFail[1],p.calls[3],p.attackAccepted,p.attackResults[0],p.attackResults[1],p.attackResults[2],p.attackResults[3],p.permissionPass[3],p.permissionFail[3],p.permissionPass[4],p.permissionFail[4],p.beginStarted,p.startedEdges,command_planner_trace::dropped.load());
+            Report(text);
+            char events[512]{};std::size_t used=0;
+            const auto first=p.eventCount>4?p.eventCount-4:0;
+            for(auto i=first;i<p.eventCount;++i){
+                const auto& event=p.events[i%p.events.size()];
+                const int written=std::snprintf(events+used,sizeof(events)-used,"%s#%llu:%s=%llu%s(ageMs=%llu)",i==first?"":";",i+1,command_planner_trace::Name(event.phase),static_cast<unsigned long long>(event.result),event.started?"[start]":"",now>=event.tick?now-event.tick:0);
+                if(written<0 || static_cast<std::size_t>(written)>=sizeof(events)-used)break;
+                used+=static_cast<std::size_t>(written);
+            }
+            const auto clockManager=Read<Address>(ring_might::Base()+0x2702598);
+            const auto world=At<Address>(clockManager.value,8);const auto gameMs=At<std::uint32_t>(world.value,0x18);
+            std::snprintf(text,sizeof(text),"planner events focus=%llu total=%llu recent=%s currentAttack=%s selected=%d attackable=%d rawPermission=%d sampledCircleDeadline=%u deadlineRead=%d gameMs=%u clockRead=%d",
+                trace.epoch,p.eventCount,p.eventCount?events:"<none observed>",focused.attack.nameComplete?focused.attack.name.data():"<none/unavailable>",focused.targetMatch,focused.attackable,focused.permission,p.circleDeadline,p.circleDeadlineReadable,gameMs.value,clockManager.readable && world.readable && gameMs.readable);
+            Report(text);
+        }
+        const auto& detail=c.gateDetail;
+        const auto sensing=At<std::uint8_t>(trace.source,0x2DD4);
+        const auto interval=At<float>(trace.source,0x2DD8);const auto nextUpdate=At<double>(trace.source,0x2C68);
+        std::snprintf(text,sizeof(text),"perception eligibility focus=%llu gateSource=%llu sourcePass=%llu gatePair=%llu pairPass=%llu pairFail=%llu sourceDispatch=%llu sourceQueued=%llu sourcePrep=%llu sourceDelivered=%llu sourceClassify=%llu sourceRefresh=%llu lastKind=%d rawA=%p rawB=%p detail=%s detailAgeMs=%llu priority=%u/%u modes=%u/%u relation=%d mask=0x%X pending=%u versions=%u/%u metaTime=%.3f stamp=%.3f interval=%.3f sensingRead=%d sensing=%u sensingInterval=%.3f nextUpdate=%.3f",
+            trace.epoch,c.gateSource,c.gateSourcePass,c.gatePair,c.gatePairPass,c.gatePairFail,c.sourceDispatch,c.sourceQueued,c.sourcePrepare,c.sourceDelivered,c.sourceClassify,c.sourceRefresh,c.lastKind,reinterpret_cast<void*>(c.lastPrimary),reinterpret_cast<void*>(c.lastSecondary),c.detailReady?command_perception_gate::Name(detail.reason):"not-sampled",c.detailReady && now>=c.detailTick?now-c.detailTick:0,detail.stimulusPriority,detail.listenerPriority,detail.actorMode,detail.targetMode,detail.relation,detail.mask,detail.pending,detail.listenerVersion,detail.cachedVersion,detail.listenerTime,detail.stamp,detail.interval,sensing.readable && interval.readable && nextUpdate.readable,sensing.value,interval.value,nextUpdate.value);
+        Report(text);
+    }
     if(nearest.complete){
         std::snprintf(text,sizeof(text),"planner sample source=%p target=%p distanceM=%.2f selectedMatch=%d kind=0x%X visible=%d attackable=%d permission=%d requestedMatch=%d pending=%u attack=%s",
             reinterpret_cast<void*>(nearest.source.actor),reinterpret_cast<void*>(nearest.target.actor),std::sqrt(nearest.distanceSquared)*.01f,nearest.targetMatch,nearest.kind,nearest.visible,nearest.attackable,nearest.permission,nearest.requestMatch,nearest.pending,nearest.attack.nameComplete?nearest.attack.name.data():"<none/unavailable>");
         Report(text);
     }
+    std::snprintf(text,sizeof(text),"perception audit source=%p target=%p slotsRead=%d slotsUsed=%u/256 sourceSlot=%u targetSlot=%u pair=%s state=%u type=%u evidence43=%u awareness44=%u refresh46=%u clockRead=%d world=%.3f stamp=%.3f duration=%.3f age=%.3f pastExpiry=%d",
+        reinterpret_cast<void*>(nearestSource.actor),reinterpret_cast<void*>(nearestTarget.actor),capacity.readable,capacity.occupied,evidence.sourceSlot,evidence.targetSlot,pa::Name(evidence.status),evidence.state,evidence.type,evidence.evidence43,evidence.awareness44,evidence.refresh46,clock.readable,clock.seconds,evidence.stamp,evidence.duration,evidence.age,evidence.pastExpiry);
+    Report(text);
 }
 inline bool Install(bool log=true) {
     if(hook || !gc::updateHook)return false;
@@ -138,7 +195,7 @@ inline bool Install(bool log=true) {
     hook=std::make_unique<PLH::x64Detour>(base+0xED7420,reinterpret_cast<Address>(&PredicateDetour),&trampoline);
     if(!hook->hook()){hook.reset();cooldown=nullptr;Report("command target cooldown hook failed");return false;}
     if(diagnostics)gc::orderAuditTick=&AuditTick;
-    Report(diagnostics?"command target cooldown v2 installed; planner audit enabled":"command target cooldown v2 installed");return true;
+    Report(diagnostics?"command target cooldown v5 installed; slot/perception eligibility audit enabled":"command target cooldown v5 installed");return true;
 }
 inline bool Remove(){if(hook && !hook->unHook())return false;hook.reset();cooldown=nullptr;if(gc::orderAuditTick==&AuditTick)gc::orderAuditTick=nullptr;return true;}
 } // namespace sow::command_target_cooldown

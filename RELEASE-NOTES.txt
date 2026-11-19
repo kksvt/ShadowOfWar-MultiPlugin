@@ -1,25 +1,22 @@
-Command cleanup v10.16
+v10.23 / activation trace v2: diagnostic handle-correlation correction
+Source only. Rebuild and restart; leave target priority enabled.
 
-SOW_ENABLE_COMMAND_RAGE_RECOVERY is an opt-in preprocessor definition. Without
-it, sow_command_stall.hpp contains no implementation and hooks.cpp omits its
-options/installation. Define it in project C++ preprocessor settings to enable
-the existing release + native rage fallback. With the macro, the default idle
-delay is 3000ms; hooks.cpp retains runtime release/enrage settings. Releasing
-an order can change the follower's target. This remains experimental.
+The v1 observer confused the separate owner entity with the AI actor and read
+the AI actor's handle from +98 instead of +2BFC. Native resolution compares
+actor+2BFC; the owner entity supplies the corresponding value at entity+98.
+The corrected relationship was checked in IDA and read-only live process data.
+Old second-handle-zero / first-other counts are not engine failure evidence.
+The hooked native arguments/returns and gameplay logic remain unchanged.
 
-commandCooldownDiagnostics=false disables recurring cooldown/planner output.
-No planner audit callback is registered when diagnostics are disabled. A concise
-cooldown initialization line and failures remain. The exact scoped target-cooldown
-bypass and full close override are unchanged. No keybind changes.
+Expect activation trace v2 installed at startup.
+Patch over v10.22: replace hooks.cpp and sow_command_activation_trace.hpp.
+Use the full source package for an older baseline. Preserve your custom options.
+The focused fixture now uses a separate owner entity and a misleading zero at
+actor+98. It and full hooks /W4 /WX checks passed, with and without optional rage.
+Earlier v10.22 command regression fixtures passed; their code is unchanged.
+Live v2 installation and four completed two-stage cycles were observed after
+restart, with matched lookups and no recorded drops or pending waits. Circling
+did not reproduce in that run; this does not establish a general fix.
 
-Local-test defaults are preserved: defender repair remains disabled, debug player
-damage protection remains enabled. Review these before a public release.
-
-Documentation now records confirmed live bypasses and residual attackability-false
-waiting. It does not claim all circling has been fixed. Superseded investigation
-instructions are removed; native offsets and useful evidence are retained.
-
-Apply hooks.cpp, sow_command_stall.hpp and sow_command_target_cooldown.hpp together,
-then rebuild/restart. Full source and compact documentation packages are provided.
-No DLL deployed. MSVC C++20 /W4 /WX verifies both macro configurations; cooldown,
-close-attack, group, rally and optional stall/rage fixtures pass.
+The reported post-siege loading hang was also observed by the user in vanilla.
+No cause or recovery for that separate loading issue is claimed here.

@@ -47,13 +47,64 @@ fixtures. Existing close-gate, group/rally and stall fixtures also pass. Live ca
 elimination of circling. A later capture showed sustained attackable=0 despite
 correct target tracking and occasional attack permission. No causal producer
 condition was identified. Recovery is now compile-time optional, and planner
-audit output is disabled by default.
+audit output is enabled only for the current slot/perception investigation.
+
+Read-only perception fixtures cover the last native row/column, full/free slot
+counts, invalid indices, pair identity, separate evidence flags, strict expiry
+timing, missing/non-finite clocks and unchanged input buffers. The native clock
+chain was checked against 0x2FE5A8 assembly. Live slot/perception capture showed
+181-184/256 occupied slots, valid sampled pairs, 0.330-second persistence, and
+missing/expired first evidence flags during circling. Slot exhaustion did not
+explain those pairs; the refresh gap's cause remains unresolved.
+
+Focused observation fixtures verify separate listener/sensor/stimulus layouts,
+stable focus and generation changes, native job-vector growth, all native
+arguments/returns/output preservation, transition rejection and disabled
+forwarding. Six native signatures and boundary call sites were checked in IDA.
+Live v1 trace installation and a healthy ranged pipeline were confirmed. Its
+stalled pair had zero matched calls, but an alternate target field was not covered.
+The revised trace covers both native kinds and source-wide activity. Fixtures
+verify metadata/envelope indirection, native return preservation, simple gate
+branches, cache version/pending/interval, and unchanged input buffers.
+Live eligibility-extension results remain pending.
 
 Full hooks compile with and without SOW_ENABLE_COMMAND_RAGE_RECOVERY. The recovery
 fixture explicitly opts into the macro; its existing behavior is retained. Normal
 builds omit the recovery implementation and installation.
 
 ## Still unresolved
+
+v10.23 activation-trace fixtures verify native request arguments (including the
+fifth float), original return values, nested callback correlation, both resolver
+failure paths, final activation that leaves flags set, ownership/identity checks,
+tracking after command expiry, pending-state edge detection, contention and
+stale/ambiguous ticket rejection. Mock game buffers remain unchanged apart from
+explicit fake-native writes. Existing command fixtures and full hooks compile
+with `/W4 /WX`, both with and without optional rage recovery. Live installation
+and callback correlation were subsequently observed in four completed cycles,
+with matching lookups and no recorded drops or pending waits. That crowded run
+did not reproduce circling; it does not establish a general fix. See
+[the trace guide](COMMAND-ACTIVATION-TRACE.md).
+
+v10.21 target-priority fixtures cover owned command scope and exclusions,
+temporary list promotion/restoration, unchanged actor and manager data, native
+cutoff preservation, duplicate/slot-reuse/malformed input rejection, exception
+cleanup and original forwarding when disabled. Initial live samples showed
+selection retention and target stimuli; later captures exposed a separate
+pending-reactivation stall. Circling also reproduced with the trial disabled,
+with native target suspension. This does not establish a general fix.
+
+The v10.20 direct planner fixture checks exact arguments/results for CircleTarget
+start/update/end and Attack start/update, nested native permission scope,
+untracked-source and stale-epoch exclusion, chronological transitions, failed
+admission, native nonzero start-flag semantics, sampled circle deadline, unchanged
+inputs and disabled forwarding. New signatures and vtable method mappings were
+checked in IDA. Live installation and incident interpretation remain pending.
+
+Native assembly verifies a 256-slot actor allocator, pair-table lookup guards,
+and separate cached flags feeding visible and attackable. Visual obstruction and
+update starvation remain hypotheses, not verified causes. High population may
+still affect scheduling even when the sampled actors have valid slots.
 
 - Large wight/revenant populations can break AI. No safe population limit is known.
 - Candidate eligibility is one layer: earlier admission and downstream path,

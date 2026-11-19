@@ -15,6 +15,7 @@
 #include "sow_command_stall.hpp"
 #endif
 #include "sow_command_target_cooldown.hpp"
+#include "sow_command_activation_trace.hpp"
 #include "sow_grunt_command_native_trace.hpp"
 #include "sow_multi_skills.hpp"
 #include "sow_defender_repair.hpp"
@@ -66,7 +67,11 @@ constexpr bool gruntCommandDiagnostics = false;
 constexpr bool traceCommandCrowding = false;
 constexpr bool forceCloseCommandAttack = true;
 constexpr bool bypassCommandTargetCooldown = true;
-constexpr bool commandCooldownDiagnostics = false; // Enable bounded planner/cooldown audit when investigating a stall.
+constexpr bool commandCooldownDiagnostics = false; // Older verbose summaries disabled for activation investigation.
+constexpr bool traceCommandPerceptionQueries = false;
+constexpr bool traceCommandPlanner = false;
+constexpr bool prioritizeCommandTarget = true; // Experimental: consider the owned enemy first in native AI selection.
+constexpr bool traceCommandActivation = true; // Observation only; command-target reactivation transitions.
 #ifdef SOW_ENABLE_COMMAND_RAGE_RECOVERY
 constexpr bool releaseStalledCommandedGrunts = true; // Experimental; releases target priority before applying rage.
 constexpr unsigned gruntCommandStallMs = 3000; // Milliseconds of observed idle time before release/enrage.
@@ -157,7 +162,8 @@ bool g_pluginHooksRemoved = true;
 // Install/remove only with game threads quiescent. Initialization should be
 // arranged by a loader outside DllMain's loader lock; see README.md.
 void InitHooks() {
-    if (sow::command_target_cooldown::hook || damageHook || sow::defender_spawn_audit::hook || sow::defender_flee_trace::removeHook || sow::defender_repair::hook || sow::defender_repair::spawnHook || sow::summon_probe::actionHook ||
+    if (sow::command_activation_trace::AnyHook()) return;
+    if (sow::command_target_priority::hook || sow::command_planner_trace::AnyHook() || sow::command_perception_trace::AnyHook() || sow::command_target_cooldown::hook || damageHook || sow::defender_spawn_audit::hook || sow::defender_flee_trace::removeHook || sow::defender_repair::hook || sow::defender_repair::spawnHook || sow::summon_probe::actionHook ||
         sow::summon_probe::requestHook || sow::summon_probe::countHook ||
         sow::raise_dead_bridge::coreHook || sow::raise_dead_bridge::creationHook ||
         sow::ring_boost::limitHook || sow::ring_boost::radiusHook ||
@@ -233,8 +239,30 @@ void InitHooks() {
     if (enableGruntCommand) sow::grunt_command::Install(gruntCommandKey, gruntCommandDiagnostics,
         gruntCommandRequireHeldStealthKey, gruntCommandStealthKey, gruntCommandConsole, gruntRallyKey);
     else if (traceGruntStealthCommand) sow::grunt_command_probe::Install();
+    if constexpr(enableGruntCommand && traceCommandActivation){
+        sow::command_activation_trace::Report(sow::command_activation_trace::Install()?
+            "activation trace v2 installed; two-stage native reactivation; transition-only target summaries":
+            "activation trace unavailable; native activation retained");
+    }
+    if constexpr(enableGruntCommand && prioritizeCommandTarget){
+        sow::command_target_cooldown::Report(sow::command_target_priority::Install()?
+            "target priority trial v1 installed; transient native selection promotion":
+            "target priority trial unavailable; native selection retained");
+    }
     if constexpr(enableGruntCommand && bypassCommandTargetCooldown) {
         sow::command_target_cooldown::Install(commandCooldownDiagnostics);
+    }
+    if constexpr(enableGruntCommand && commandCooldownDiagnostics && traceCommandPerceptionQueries){
+        if(sow::command_target_cooldown::hook){
+            sow::command_target_cooldown::Report(sow::command_perception_trace::Install()?
+                "perception query trace v2 installed; eligibility + source activity; observation only":
+                "perception query trace unavailable; existing command/audit retained");
+        }
+    }
+    if constexpr(enableGruntCommand && commandCooldownDiagnostics && traceCommandPerceptionQueries && traceCommandPlanner){
+        sow::command_target_cooldown::Report(sow::command_planner_trace::Install()?
+            "planner trace v1 installed; CircleTarget start/update/end + Attack + native permission; observation only":
+            "planner trace unavailable; existing command/perception trace retained");
     }
 #ifdef SOW_ENABLE_COMMAND_RAGE_RECOVERY
     if constexpr(enableGruntCommand && releaseStalledCommandedGrunts)
@@ -291,6 +319,10 @@ void RemoveHooks() {
     const bool skills=sow::multi_skills::Remove();
     if(skills)sow::resurrection_weapons::multiSelection=false;
     const bool commandTrace=sow::grunt_command_native_trace::Remove();
+    const bool activationTrace=sow::command_activation_trace::Remove();
+    const bool targetPriority=sow::command_target_priority::Remove();
+    const bool plannerTrace=sow::command_planner_trace::Remove();
+    const bool perceptionTrace=sow::command_perception_trace::Remove();
     const bool targetCooldown=sow::command_target_cooldown::Remove();
     const bool closeAttack=sow::close_command_attack::Remove();
     const bool commandLos=sow::command_los::Remove();
@@ -304,7 +336,7 @@ void RemoveHooks() {
     const bool bridge = sow::raise_dead_bridge::Remove();
     const bool summon = sow::summon_probe::Remove();
     const bool damage = RemoveDamageHook();
-    g_pluginHooksRemoved = spawnAudit && normalization && morale && fleeTrace && defenderRepair && skills && commandTrace && targetCooldown && closeAttack && commandLos && command && commandProbe && gear && aggression && weapons && might && ring && bridge && summon && damage;
+    g_pluginHooksRemoved = spawnAudit && normalization && morale && fleeTrace && defenderRepair && skills && commandTrace && activationTrace && targetPriority && plannerTrace && perceptionTrace && targetCooldown && closeAttack && commandLos && command && commandProbe && gear && aggression && weapons && might && ring && bridge && summon && damage;
     if (g_pluginHooksRemoved) g_pluginHooksInstalled = false;
     if (enableDebugConsole) FreeConsole();
 }

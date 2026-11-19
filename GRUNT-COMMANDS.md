@@ -70,13 +70,100 @@ The corrected v2 context reader uses predicate-context +0 -> selection-context +
 for source stats, and predicate-context +0x10 for target stats, verifying its
 +0x08 target descriptor. The earlier direct-source reading was incorrect.
 
-Startup reports command target cooldown v2 installed. commandCooldownDiagnostics
-(default false in hooks.cpp) prints at most two lines/second during orders to the
+Startup reports command target cooldown v5 installed. commandCooldownDiagnostics
+(true for this investigation) prints at most seven summary lines/second with the planner trace during orders to the
 debug console and %TEMP%/SoW-GruntCommand-active.log. It distinguishes predicate
 calls, exact-record passes/denials, bypasses and scope rejections, plus bounded
-nearby planner state. These counts are evaluations, not hits or distinct followers.
+nearby planner state and a read-only slot/perception sample. These counts are evaluations, not hits or distinct followers.
 The detailed interpretation is in the research report. Install() without an
 argument retains diagnostics for compatibility with the preceding hooks.cpp.
+
+sow_command_perception_audit.hpp reads the inline native 256-slot occupancy array,
+validates source-row/pair identity, and reads both evidence flags and their timing.
+The sample is for the nearest tracked pair, not all followers. pair=ready is
+required before interpreting evidence fields; missing/unreadable fields are not
+evidence of a cleared native flag. slotsUsed=256 alone is not a failure if the
+sampled actors both have valid slots and a matching pair. pastExpiry=-1 means
+timing cannot be interpreted; 1 means the threshold was passed, not proof the
+engine should already have cleared it (refresh46 and pair type also matter).
+The world clock is read directly through the chain used by native 0x2FE5A8.
+No additional native calls, hooks or writes are used. Set
+commandCooldownDiagnostics=false after testing to remove the sampling callback.
+Compare pair flags with cached AI flags only when selectedMatch=1; otherwise the
+AI may still describe a different selected target. Sampling is not an event trace.
+
+### Focused query-boundary trace
+
+traceCommandPerceptionQueries=true adds six signature-checked observation hooks,
+installed only with commandCooldownDiagnostics and the cooldown hook active.
+Startup must also report perception query trace v2 installed. Optional trace
+failure retains existing command behavior and the slot audit. Set this option
+false to remove the six observation hooks on the next rebuild/restart.
+
+The extra perception query summary follows one source/target until its tracked
+order ends, preferring a nearby non-attackable source when selecting a new focus.
+It includes focused pair flags so it can be compared independently of the nearest
+follower shown in the other samples. Counters reset when focus changes, identified
+by focus and batch. The first sample establishes the focus and normally has zeros.
+
+| Counter | Native boundary and meaning |
+| --- | --- |
+| dispatch | 0x123BF4, stimulus dispatch for the focused pair |
+| queued | Increase in its native 312-byte job-vector count across that dispatch |
+| queueUnknown | Invalid/changing vector bounds; append count unavailable |
+| prep2 / prep3 / prepOther | 0x4404B0 result; 2 rejects preparation, 3 follows the query-preparation/special-case path |
+| delivered | 0x123B34, queued work reaches native result processing, before its callback gates |
+| classify | 0x64C668, visual perception classifier ran; old/new/progress are native outputs |
+| transitionReject | Native callback condition would reject old=4/new!=4 or old!=0/new=0 |
+| refreshCalls | 0x43F4E4 was called; actual stored evidence is checked separately |
+| droppedGlobal | Counter updates skipped because the plugin trace lock was busy |
+
+These are boundary counts, not matched job IDs, ray-hit classifications or exact
+queue latency. Dispatch/queued work can include other stimuli for the same pair.
+prep3 alone does not prove a physical ray was submitted. Delivered work with no
+classification narrows the gap to native callback/identity gates; it does not
+identify which gate failed. A transition rejection is a state-classification
+result, not proof another follower blocked a ray. Work queued before focus began
+may finish inside the observed window. No observations prove an event never ran
+outside that window, especially when droppedGlobal increases.
+
+Originals run exactly once. Hooks record only plugin counters under nonblocking
+try-locks; logging remains on the existing bounded player-update audit. There are
+no native calls added by the trace, game-memory writes, or changed decisions.
+
+### Pre-dispatch eligibility and representation checks
+
+The additional native gate at 0x1225D8 is observed without replacing its result.
+It receives listener metadata and a 160-byte envelope, not the raw stimulus.
+Metadata+0 identifies source actor; envelope+0x90 points to the stimulus. The
+native actor-target selection at 0x4403B4 uses stimulus+0x48 for kind 1 and +0x70
+for kind 2. The old trace matched only +0x48, so its zero dispatch count did not
+fully exclude a matching blind spot. The revised trace handles both known kinds
+and also counts all activity for the focused source, independent of target.
+
+The perception eligibility line contains:
+
+- gateSource/sourcePass: all gate checks for this source, and native passes.
+- gatePair/pairPass/pairFail: checks whose kind-selected actor matches the order.
+- sourceDispatch/sourceQueued/sourcePrep/sourceDelivered/sourceClassify/sourceRefresh:
+  activity for any target, allowing unmatched representations to be spotted.
+- lastKind/rawA/rawB: latest source stimulus representation; these can describe
+  an unrelated stimulus, not the stored failed-gate detail.
+- detail: at most one post-call snapshot/second after a matched native rejection.
+  Priority, actor/target mode, callback availability, relation value/mask, height,
+  pending bit or interval can explain simple branches. Dynamic relationship
+  overrides and unsupported/unreadable cases remain unresolved. snapshot-passes
+  means the sampled simple checks pass despite the observed native rejection;
+  it is not a forced native success or an exact branch trace.
+- sensing/sensingInterval/nextUpdate: source actor's native scheduling fields,
+  read once per summary, with a separate sensingRead validity flag.
+
+The gate's relationship cache lookup and bitmask are read directly; no additional
+native getter is invoked. Snapshot timing/version/pending fields come from the
+same offsets the native gate tests. Counts can include debug eligibility passes
+and are not unique requests. All fields are bounded observations, not proof of
+why an unobserved query never ran. No canonicalization of every possible actor
+alias is claimed.
 
 The fixture uses the native predicate constructors, including their pointer
 indirection. Combined source and targeted scope/fallback/regression fixtures pass. Live testing reported improved engagement, but residual circling occurred while
@@ -203,7 +290,38 @@ reactions and other priorities still apply. Unhook only with quiescent detours.
 
 ## Native circling investigation
 
-[The focused research report](COMMAND-CIRCLING-RESEARCH.md) documents the shared
-12-second target cooldown, separate planner permission/perception gates, and why
-release plus rage can change targets. Live captures confirm cooldown bypasses and a separate attackability-false
-waiting case; the latter has not been attributed to an exact native condition.
+The v10.23 diagnostic build enables `prioritizeCommandTarget=true` and
+`traceCommandActivation=true`. The former promotes the owned victim in the
+transient native actor-selection list, preserving global budgets and the native
+cutoff. The latter observes reactivation requests, both queued callbacks, handle
+resolution and final activation. See [the diagnostic guide](COMMAND-ACTIVATION-TRACE.md).
+
+Older cooldown/perception/planner summaries are disabled in this build. The new
+trace buffers events in detours and emits changed target summaries from player
+update, at most once per second per watched identity. Stable state is quiet;
+recent identities remain tracked for 60 seconds after command ownership ends.
+
+Live captures distinguish two conditions: a victim suspended by native selection
+with no reactivation pending, and an unsuspended victim still marked pending.
+The scheduler's class helper promotes actors with a commanded target, without
+automatically promoting that victim. It sorts candidate class before other
+ranking fields, making crowded group commands a plausible source of victim
+starvation. Exact transient rank and causal transition sequences remain unproven.
+
+Known/visible and attackable are different cached perception flags. Three close
+followers can retain the correct victim while native attackability is false.
+Passing the existing cooldown or close-candidate gate does not satisfy every
+later planner condition. Native suspension removes persistent visibility stimuli,
+which fits the absent evidence in the captured cases.
+
+The priority trial has successful selection-retention samples but is not a
+general circling fix; the pending-reactivation case still needs tracing. A
+visually circling follower may be approaching, waiting or cheering without
+running an accepted literal CircleTarget planner. Do not infer its exact leaf
+from movement alone.
+
+The 256 perception slots are distinct from the 256-entry native actor-selection
+table and its active configuration quotas. Neither number is a demonstrated
+safe population cap. Large wight/revenant populations may still break AI.
+No global budget change, direct flag recovery or new gameplay bypass is part
+of the activation diagnostic.

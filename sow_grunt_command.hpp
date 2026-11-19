@@ -144,6 +144,7 @@ inline std::array<Active,maxOrders> orders{};
 inline bool(*stallObserver)(std::size_t,ULONGLONG,Address)=nullptr;
 inline void(*stallTick)(ULONGLONG)=nullptr;
 inline void(*orderAuditTick)(ULONGLONG)=nullptr;
+inline void(*activationAuditTick)(ULONGLONG)=nullptr;
 inline void(*stallShutdown)()=nullptr;
 struct Preview { Binding unit; bool owns = false, nativeWants = false; };
 inline Preview preview;
@@ -699,6 +700,7 @@ inline void AdvanceUnit(std::size_t slot, ULONGLONG now, Address player) {
     TraceCommand(active,now,current,slot==0);
 }
 inline void Advance(ULONGLONG now,Address player) {
+    if(activationAuditTick)activationAuditTick(now);
     if(stallTick)stallTick(now);
     if(orderAuditTick)orderAuditTick(now);
     const auto before=OrderCount();

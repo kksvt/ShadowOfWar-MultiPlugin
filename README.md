@@ -44,10 +44,25 @@ forceCloseCommandAttack=true, traceCommandCrowding=false,
 ignoreCommandedGruntsForAttackLos=false. Routine grunt/skill logs are off.
 Forced Awe, defender diagnostics and support exports remain configured;
 enableDefenderRepair=false for the current local command trial. Re-enable it for
-imported-defender repair. commandCooldownDiagnostics=false keeps the bounded planner audit off. Enable it
-when investigating command stalls. Define SOW_ENABLE_COMMAND_RAGE_RECOVERY in the
+imported-defender repair. The v10.23 diagnostic defaults to
+`traceCommandActivation=true`, with the older cooldown/perception/planner
+summaries disabled. It observes both native reactivation callbacks, handle
+resolution and final activation, emitting changed command-target summaries to
+the console and existing command log. See [the activation trace guide](COMMAND-ACTIVATION-TRACE.md).
+Set `traceCommandActivation=false` to omit its six observation hooks on the next
+rebuild/restart. Define
+SOW_ENABLE_COMMAND_RAGE_RECOVERY in the
 project preprocessor settings to compile and enable the optional release/enrage
 fallback; its delay and runtime options then appear in hooks.cpp.
+
+The v10.21 experimental `prioritizeCommandTarget=true` gives the current owned
+enemy first consideration in native actor selection, addressing observed target
+suspension. It preserves global budgets and restores its temporary candidate
+list after each native policy call. Another actor can lose selection priority.
+This remains enabled for the activation investigation; it is not a general
+circling fix. Crowded captures distinguish native target suspension from a
+separate pending-reactivation stall.
+See [the trial notes](COMMAND-TARGET-PRIORITY-TRIAL.md) for scope and live testing.
 
 **Development default:** debugPlayerInvincibility=true suppresses finite positive
 calculated player damage. Disable for ordinary play. It does not prevent every
@@ -61,6 +76,7 @@ scripted death or environmental failure. Other options remain in hooks.cpp.
 | [Necromancy](NECROMANCY.md) | Summons, resurrection, ring/gear effects and weapons |
 | [Commands](GRUNT-COMMANDS.md) | Aggression, targeting, close eligibility, rally and native paths |
 | [Circling research](COMMAND-CIRCLING-RESEARCH.md) | Shared target cooldown and separate native planner gates |
+| [Activation diagnostic](COMMAND-ACTIVATION-TRACE.md) | Current two-stage callback trace and capture instructions |
 | [Multi-equip](MULTI-SKILLS.md) | Purchased siblings and elemental conflicts |
 | [Defender repair](DEFENDER-REPAIR.md) | Scope, detection, cleanup, Awe and mortal conversions |
 | [Structural policy](DEFENDER-STRUCTURE.md) | Exact AI/class/tribe compatibility and appearance effects |
@@ -82,5 +98,6 @@ threads. Check removal results; do not unload while detours execute or removal
 failed. Arbitrary hot reload is unsupported. Optional failures report their status
 and can retain the working features.
 
-These docs contain no executable, extracted full database, live heap addresses or
-machine-specific project paths. They assign no license to code or dependencies.
+Source packages contain no game executable or extracted full database.
+Diagnostic research notes can include example process addresses; these are not
+stable offsets. These docs assign no license to code or dependencies.

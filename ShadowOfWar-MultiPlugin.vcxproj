@@ -176,26 +176,41 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="sow_command_activation_trace.hpp" />
     <ClInclude Include="sow_command_gate.hpp" />
+    <ClInclude Include="sow_command_los.hpp" />
+    <ClInclude Include="sow_command_perception_audit.hpp" />
+    <ClInclude Include="sow_command_perception_gate.hpp" />
+    <ClInclude Include="sow_command_perception_trace.hpp" />
+    <ClInclude Include="sow_command_planner_trace.hpp" />
+    <ClInclude Include="sow_command_stall.hpp" />
+    <ClInclude Include="sow_command_target_cooldown.hpp" />
+    <ClInclude Include="sow_command_target_priority.hpp" />
+    <ClInclude Include="sow_defender_ability_policy.hpp" />
     <ClInclude Include="sow_defender_actor_policy.hpp" />
     <ClInclude Include="sow_defender_blacklist.hpp" />
     <ClInclude Include="sow_defender_class_policy.hpp" />
     <ClInclude Include="sow_defender_effects.hpp" />
     <ClInclude Include="sow_defender_flee_trace.hpp" />
+    <ClInclude Include="sow_defender_inventory_audit.hpp" />
     <ClInclude Include="sow_defender_morale.hpp" />
     <ClInclude Include="sow_defender_normalize.hpp" />
+    <ClInclude Include="sow_defender_provenance.hpp" />
     <ClInclude Include="sow_defender_repair.hpp" />
     <ClInclude Include="sow_defender_slots.hpp" />
     <ClInclude Include="sow_defender_spawn_audit.hpp" />
     <ClInclude Include="sow_defender_structure_policy.hpp" />
     <ClInclude Include="sow_defender_trait_policy.hpp" />
+    <ClInclude Include="sow_defender_vulnerability_policy.hpp" />
     <ClInclude Include="sow_entities.hpp" />
     <ClInclude Include="sow_gear_resurrection.hpp" />
     <ClInclude Include="sow_grunt_aggression.hpp" />
     <ClInclude Include="sow_grunt_command.hpp" />
+    <ClInclude Include="sow_grunt_command_native_trace.hpp" />
     <ClInclude Include="sow_grunt_command_probe.hpp" />
     <ClInclude Include="sow_multi_skills.hpp" />
     <ClInclude Include="sow_multi_skill_data.hpp" />
+    <ClInclude Include="sow_near_attack_gate.hpp" />
     <ClInclude Include="sow_raise_dead_bridge.hpp" />
     <ClInclude Include="sow_resurrection_weapons.hpp" />
     <ClInclude Include="sow_ring_boost.hpp" />
